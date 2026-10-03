@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import *
-from .dashboard import TrendPlot, METRICS, METRIC_GRID
+from .dashboard import TrendPlot
 
 STYLE='''
 QWidget {background:#0c1423;color:#dfe8f4;font-family:Segoe UI;font-size:10pt;}
@@ -9,7 +9,8 @@ QGroupBox::title {subcontrol-origin:margin;left:12px;color:#8fa7c6;}
 QLineEdit,QComboBox,QSpinBox,QPlainTextEdit {background:#131f32;border:1px solid #34465e;border-radius:5px;padding:6px;}
 QLineEdit:read-only {color:#9eb5cc;background:#0f1b2c;}
 QLineEdit[changed="true"],QComboBox[changed="true"] {background:#382d15;border:1px solid #e6af42;color:#ffe2a0;}
-QLineEdit[invalid="true"],QComboBox[invalid="true"] {background:#3d202b;border:1px solid #ec7189;}
+QLineEdit[invalid="true"],QComboBox[invalid="true"] {background:#3d202b;border:1px solid #ec7189;color:#f6d5dc;}
+QLineEdit:read-only[invalid="true"],QComboBox:disabled[invalid="true"] {background:#3d202b;border:1px solid #ec7189;color:#f6d5dc;}
 QComboBox:disabled {color:#9eb5cc;}
 QPushButton {background:#20334d;border:1px solid #3a526f;border-radius:6px;padding:8px 12px;}
 QPushButton:hover {background:#2c496b;} QPushButton:disabled {color:#68778e;background:#142034;}
@@ -38,8 +39,8 @@ def build_ui(w):
     def note(g,text):
         l=QLabel(text);l.setWordWrap(True);l.setObjectName('muted');g.addWidget(l);return l
     connection=QGroupBox('Conexão com Raspberry Pi Pico');layout.addWidget(connection);grid=QGridLayout(connection)
-    from .controller_store import names, current
-    chip=current()
+    from .controller_store import names, selected, get
+    chip=get(selected()) if selected() else None
     grid.addWidget(QLabel('Controlador'),0,0);grid.addWidget(combo('profile',['Selecione o CI']+names()),1,0)
     grid.addWidget(QLabel('Porta serial'),0,1);grid.addWidget(combo('port',[]),1,1)
     w.port.setEditable(True)
@@ -61,14 +62,11 @@ def build_ui(w):
     w.monitor_interval=field('monitor_interval',QSpinBox());w.monitor_interval.setRange(1,60);w.monitor_interval.setValue(2);r.addWidget(w.monitor_interval)
     button(r,'Iniciar monitoramento',w.start_monitor);w.pause_monitor=QPushButton('Pausar');r.addWidget(w.pause_monitor);w.pause_monitor.clicked.connect(w.pause_monitoring);button(r,'Exportar histórico',w.export_monitor);r.addStretch()
     w.monitor_state=note(g,'Monitoramento parado. Nenhuma leitura automática ao conectar.')
-    w.metric_labels={};names={key:(title,unit) for key,title,unit in METRICS}
-    grid=QGridLayout();grid.setHorizontalSpacing(8);grid.setVerticalSpacing(4);g.addLayout(grid)
-    for row_index,column,key in METRIC_GRID:
-        title,unit=names[key]
-        box=QGroupBox(title+' • '+unit);box.setObjectName('metricbox');col=QVBoxLayout(box);col.setContentsMargins(6,4,6,2)
-        l=QLabel('—');l.setObjectName('metric');col.addWidget(l);grid.addWidget(box,row_index,column);w.metric_labels[key]=l
-        if key=='8B':l.setToolTip(chip['telemetry']['vout']['tooltip'])
-    r=row(g);r.addWidget(QLabel('Gráfico'));w.chart_metric=QComboBox();w.chart_metric.addItems([title for _,title,_ in METRICS]);r.addWidget(w.chart_metric);r.addStretch()
+    w.metric_labels={};w.metric_grid=QGridLayout();w.metric_grid.setHorizontalSpacing(8);w.metric_grid.setVerticalSpacing(4);g.addLayout(w.metric_grid)
+    r=row(g);r.addWidget(QLabel('Gráfico'));w.chart_metric=QComboBox()
+    w.chart_metric.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+    w.chart_metric.view().setTextElideMode(Qt.TextElideMode.ElideNone)
+    r.addWidget(w.chart_metric);r.addStretch()
     w.plot=TrendPlot();w.plot.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding);g.addWidget(w.plot,2);w.chart_metric.currentIndexChanged.connect(w.select_chart)
     w.telemetry_table=table(['Amostra','Medição','Detalhe técnico','Valor / estado','Integridade'],g)
     w.telemetry_table.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Ignored)
@@ -84,14 +82,15 @@ def build_ui(w):
     w.edit_summary=note(g,'Nenhuma alteração proposta.')
     r=row(g);button(r,'Aplicar novos valores em RAM',w.apply_editor,True);r.addStretch()
     w.slots_label=QLabel('Slots USER: não consultados');r.addWidget(w.slots_label);button(r,'Consultar slots',w.query_slots)
-    r=row(g);button(r,'Gravar permanentemente…',w.prepare_commit,True)
-    note(g,'Grava a imagem já aplicada em RAM. Consulta os slots e pede confirmação antes de consumir um slot USER.')
+    r=row(g);button(r,'Gravar dump completo',w.restore_new_chip,True);button(r,'Gravar somente parâmetros modificados',w.prepare_commit)
+    note(g,'Gravar dump completo copia a área USER do arquivo para este CI e grava um slot. O trim e a área de fabricante deste CI permanecem os dele. Gravar somente parâmetros modificados grava só o que já foi alterado e aplicado em RAM.')
     _,g=tab('Diagnóstico e manutenção')
     settings=QGroupBox('Endereços avançados');settings.setVisible(False);g.addWidget(settings);f=QGridLayout(settings)
-    for i,(title,name,value) in enumerate([('PMBus (hexadecimal)','address',chip['bus']['pmbus']),('I²C direto (hexadecimal)','direct_address',chip['bus']['direct'])]):
+    bus=chip['bus'] if chip else {}
+    for i,(title,name,value) in enumerate([('PMBus (hexadecimal)','address',bus.get('pmbus','')),('I²C direto (hexadecimal)','direct_address',bus.get('direct',''))]):
         f.addWidget(QLabel(title),0,i);f.addWidget(field(name,QLineEdit(value)),1,i)
     f.addWidget(QLabel('Velocidade'),0,2);f.addWidget(combo('speed',['100 kHz','50 kHz','10 kHz']),1,2)
-    note(g,'Manutenção interrompe as saídas temporariamente. Procedimentos do firmware validado preservados.')
+    note(g,'Manutenção usa as receitas do JSON selecionado. Recursos não descritos são recusados antes de escrever.')
     g.addWidget(field('reen_confirm',QCheckBox('Autorizo desligar e religar as saídas para aplicar a configuração de partida.')))
     r=row(g);button(r,'Desligar e religar saídas',w.start_reenable)
     g.addWidget(field('reload_confirm',QCheckBox('Autorizo recarregar os valores permanentes, substituindo a configuração em RAM.')))

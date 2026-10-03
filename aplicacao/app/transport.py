@@ -172,7 +172,7 @@ class Pico:
 
             hello = self.request("HELLO")
 
-            if hello not in tuple(f"OK INFINEON-PICO {v} READONLY" for v in (1,2,3,4,5,6))+("OK INFINEON-PICO 7 RAMTEST","OK INFINEON-PICO 8 RAMTEST","OK INFINEON-PICO 9 RAMTEST","OK INFINEON-PICO 10 RAMTEST","OK INFINEON-PICO 11 RAMTEST","OK INFINEON-PICO 12 RAMTEST","OK INFINEON-PICO 13 RAMTEST","OK INFINEON-PICO 14 RAMTEST","OK INFINEON-PICO 15 RAMTEST"):
+            if hello not in tuple(f"OK INFINEON-PICO {v} READONLY" for v in (1,2,3,4,5,6))+("OK INFINEON-PICO 7 RAMTEST","OK INFINEON-PICO 8 RAMTEST","OK INFINEON-PICO 9 RAMTEST","OK INFINEON-PICO 10 RAMTEST","OK INFINEON-PICO 11 RAMTEST","OK INFINEON-PICO 12 RAMTEST","OK INFINEON-PICO 13 RAMTEST","OK INFINEON-PICO 14 RAMTEST","OK INFINEON-PICO 15 RAMTEST","OK INFINEON-PICO 16 GENERIC"):
 
                 raise RuntimeError("Firmware não reconhecido.")
 
@@ -201,6 +201,7 @@ class Pico:
             previous_timeout=getattr(self.serial,'timeout',1)
             try:
                 if command in ('RAMHOLD 08 26 FF EF 10000 RESTORE','ENHOLD 08 88 89 88 48 10000 RESTORE','RELOAD 08 71 20 24 D0 20','COMMIT 08 USER'):self.serial.timeout=15 if command.endswith('10000 RESTORE') else 5
+                if command=='TXRUN':self.serial.timeout=35
                 raw = self.serial.read_until(b"\n", 256)
             finally:
                 self.serial.timeout=previous_timeout
@@ -348,41 +349,34 @@ class Pico:
     def pm_read(self,address,command,pec=False,split=False):
 
         self.diagnostics_ready()
-
-        if address not in ADDRESSES or command not in COMMANDS or (pec and split):
-
-            raise ValueError("Parâmetros PMBus inválidos; PEC exige repeated START.")
-
-        result=self.request(f"PM {address:02X} {command:02X} {int(pec):02X} {int(split):02X}")
-
-        try:
-
-            return decode_mfr(result,address,pec,command)
-
-        except ValueError as exc:
-
-            # The full serial frame arrived; allow the report to retain this failure.
-
-            raise TargetRejected(str(exc)) from exc
-
-
+        from .controller_store import current
+        p=current()
+        if self.version!=16:raise ValueError('Atualize o firmware para protocolo 16 antes de usar os perfis JSON.')
+        if address not in ADDRESSES or not 0<=command<=255 or (pec and split):raise ValueError('Parâmetros PMBus inválidos')
+        length=p['protocol']['identity_read']['bytes'] if command==p['identity']['model_command'] else (1 if command==0x98 else 0)
+        response=self.request(f'GPM {address:02X} {command:02X} {length:02X} {int(pec):02X} {int(split):02X}')
+        m=re.fullmatch(r'OK BLOCK ([0-9A-F]{2}) ([0-9A-F]+) ([0-9A-F]{2}|--)',response)
+        if not m:raise ValueError('Resposta de identificação inválida')
+        count=int(m[1],16);data=bytes.fromhex(m[2])
+        if not 1<=count<=32 or len(data)!=count or (length and count!=length):raise ValueError('Comprimento inválido')
+        expected=crc8(bytes([address<<1,command,address<<1|1])+ (b'' if length else bytes([count]))+data)
+        if pec and (m[3]=='--' or int(m[3],16)!=expected):raise ValueError('PEC inválido')
+        return dict(command=f'{command:02X}',raw_hex=m[2],text=''.join(chr(x) if 32<=x<127 else '.' for x in data),pec_verified=bool(pec),identification=p['identity']['label'])
 
     def register_read(self,address,register):
         from .registers import decode_register
-        if self.version<6:raise ValueError("Atualize o UF2 para v0.6")
-        if address not in ADDRESSES or not 0<=register<=255:raise ValueError("Parâmetros inválidos")
-        return decode_register(self.request(f"REG {address:02X} {register:02X}"),address)
+        from .controller_store import current
+        p=current()['protocol']['register_access']
+        if self.version!=16:raise ValueError('Atualize o firmware para protocolo 16.')
+        if address not in ADDRESSES or not 0<=register<=255:raise ValueError('Parâmetros inválidos')
+        return decode_register(self.request(f'GREG {address:02X} {register:02X} {p["pointer_command"]:02X} {p["read_command"]:02X}'),address)
 
     def telemetry_read(self,address,command):
-
         from .telemetry import FIELDS,decode_fixed
-
-        if self.version<5:raise ValueError("Atualize o UF2 para v0.5 (protocolo 5).")
-
-        if address not in ADDRESSES or command not in FIELDS:raise ValueError("Comando de telemetria inválido")
-
-        return decode_fixed(self.request(f"TEL {address:02X} {command:02X}"),address,command)
-
+        if self.version!=16:raise ValueError('Atualize o firmware para protocolo 16.')
+        if address not in ADDRESSES or command not in FIELDS:raise ValueError('Comando inválido')
+        length=FIELDS[command][1]
+        return decode_fixed(self.request(f'GPM {address:02X} {command:02X} {length:02X} 01 00'),address,command)
 
 
     def raw_read(self,address,register,length=1,split=False):
@@ -473,8 +467,10 @@ class Simulated:
     def pm_read(self,address,command,pec=False,split=False):
 
         if address!=0x30:raise TargetRejected("ERR PMBUS_COMMAND")
-
-        return dict(command=COMMANDS[command],raw_hex={0x98:"12",0x9A:"44",0x9B:"05"}.get(command,"53494D"),
+        from .controller_store import selected, get
+        name = selected()
+        model = get(name)['identity']['model_hex'] if name else '44'
+        return dict(command=COMMANDS.get(command, f'{command:02X}'),raw_hex={0x98:"12",0x9A:model,0x9B:"05"}.get(command,"53494D"),
 
                     text="SIMULAÇÃO",pec_verified=pec,identification="Simulado; não é identificação real")
 

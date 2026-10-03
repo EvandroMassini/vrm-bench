@@ -5,6 +5,7 @@ from pathlib import Path
 
 _chips = {}
 _current = None
+_errors = {}
 
 def directory():
     if getattr(sys, 'frozen', False):
@@ -15,17 +16,21 @@ def load(folder=None):
     global _current
     folder = Path(folder) if folder else directory()
     found = {}
+    _errors.clear()
     if folder.is_dir():
         for path in sorted(folder.glob('*.json')):
-            data = json.loads(path.read_text(encoding='utf-8-sig'))
-            if not isinstance(data, dict) or not data.get('id'):
-                continue
-            data['path'] = str(path)
-            found[data['id']] = data
+            try:
+                from .profile_schema import validate
+                data = validate(json.loads(path.read_text(encoding='utf-8-sig')))
+                if data['id'] in found: raise ValueError('id duplicado: '+data['id'])
+                data['path'] = str(path)
+                found[data['id']] = data
+            except (ValueError, KeyError, TypeError, AttributeError) as exc:
+                _errors[str(path)] = str(exc)
     _chips.clear()
     _chips.update(found)
     if _current not in _chips:
-        _current = 'IR3567B' if 'IR3567B' in _chips else (next(iter(_chips), None))
+        _current = None
     return dict(_chips)
 
 def names():
@@ -38,11 +43,20 @@ def get(name):
         load()
     return _chips[name]
 
+def selected():
+    if not _chips:
+        load()
+    return _current if _current in _chips else None
+
+def clear():
+    global _current
+    _current = None
+
 def current():
     if not _chips:
         load()
-    if _current is None:
-        raise ValueError('Nenhum controlador em controllers.')
+    if _current is None or _current not in _chips:
+        raise ValueError('Selecione o CI correto na lista Controlador antes de ler a placa.')
     return _chips[_current]
 
 def select(name):
@@ -79,4 +93,15 @@ def model_hex(name=None):
     chip = get(name) if name else current()
     return chip['identity']['model_hex']
 
+def identity_register_text(chip=None):
+    chip = chip or current()
+    register = ((chip.get('protocol') or {}).get('identity') or {}).get('register')
+    if isinstance(register, int):
+        return f'{register:02X}'
+    return (chip.get('bus') or {}).get('register') or ''
+
 load()
+
+
+def errors():
+    return dict(_errors)

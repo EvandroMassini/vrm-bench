@@ -12,14 +12,14 @@ class DiagnosticTests(unittest.TestCase):
     def test_nack_keeps_usb(self):
         p=Pico.__new__(Pico)
         p.serial=FakeSerial(b'ERR PMBUS_COMMAND\n')
-        p.version=4
+        p.version=16
         with self.assertRaises(TargetRejected):p.pm_read(0x70,0x99)
         self.assertFalse(p.serial.closed)
-        self.assertEqual(p.serial.sent,[b'PM 70 99 00 00\n'])
+        self.assertEqual(p.serial.sent,[b'GPM 70 99 00 00 00\n'])
     def test_fatal_closes_usb(self):
         p=Pico.__new__(Pico)
         p.serial=FakeSerial(b'ERR BUS_CONFLICT\n')
-        p.version=4
+        p.version=16
         with self.assertRaises(RuntimeError):p.pm_read(0x70,0x99)
         self.assertTrue(p.serial.closed)
     def test_continue_after_nack(self):
@@ -43,23 +43,23 @@ class DiagnosticTests(unittest.TestCase):
         self.assertTrue(decode_mfr(f'OK BLOCK 01 22 {checksum:02X}',0x70,True,0x98)['pec_verified'])
     def test_stop_pec_rejected_before_io(self):
         p=Pico.__new__(Pico)
-        p.version=4
+        p.version=16
         with self.assertRaises(ValueError):p.pm_read(0x70,0x99,True,True)
     def test_observation(self):
         p=Pico.__new__(Pico)
-        p.version=4
+        p.version=16
         p.serial=FakeSerial(b'OK LINES 10000 12 45 87 3\n')
         r=p.observe()
         self.assertEqual(r['changes'],87)
         self.assertTrue(r['last_sda'])
     def test_raw_wire_and_byte_order(self):
         p=Pico.__new__(Pico)
-        p.version=4
+        p.version=16
         p.serial=FakeSerial(b'OK BLOCK 02 1234 --\n')
         r=p.raw_read(0x70,0x24,2,True)
         self.assertEqual(r['raw_hex'],'1234')
         self.assertEqual(p.serial.sent,[b'RAW 70 24 02 01\n'])
     def test_raw_invalid_no_io(self):
         p=Pico.__new__(Pico)
-        p.version=4
+        p.version=16
         with self.assertRaises(ValueError):p.raw_read(0x70,0x24,3)

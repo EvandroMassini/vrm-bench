@@ -26,6 +26,35 @@ def parse_config(text):
         raise ValueError("Arquivo vazio.")
     return result
 
+def parse_dump_tolerant(text):
+    """Keep every resolvable byte. Contradictory duplicates and broken lines are counted, not fatal to the file."""
+    kept, rejected, issues = {}, set(), []
+    for number, line in enumerate(text.splitlines(), 1):
+        raw = line.strip()
+        if not raw:
+            continue
+        parts = raw.split()
+        if len(parts) != 3 or any(not re.fullmatch(r"[0-9a-fA-F]{2}", part) for part in parts):
+            issues.append(f"Linha {number}: formato inválido. Linha ignorada.")
+            continue
+        address, value, mask = (int(part, 16) for part in parts)
+        if address in rejected:
+            issues.append(f"Linha {number}: {address:02X} já estava contraditório. Linha ignorada.")
+            continue
+        previous = kept.get(address)
+        if previous is None:
+            kept[address] = Entry(address, value, mask)
+            continue
+        if previous.value != value:
+            rejected.add(address)
+            del kept[address]
+            issues.append(f"{address:02X}: valores {previous.value:02X} e {value:02X}. Parâmetro ignorado.")
+            continue
+        issues.append(f"{address:02X}: endereço repetido. Mantido o primeiro valor.")
+    if not kept and not issues:
+        issues.append("Arquivo sem valores.")
+    return list(kept.values()), issues
+
 def compare(entry, actual):
     if actual is None:
         return "Não lido"
@@ -34,12 +63,6 @@ def compare(entry, actual):
     return "Confere" if ((actual ^ entry.value) & entry.mask) == 0 else "Diverge"
 
 def region(profile, address):
-    if profile == "IR35217":
-        if 0x24 <= address <= 0x96:
-            return "USER"
-        if 0x98 <= address <= 0xA5:
-            return "MFR"
-        return "Fora da configuração USER/MFR"
     from .controller_store import region_name
     named = region_name(profile, address)
     if named is not None:
@@ -47,6 +70,12 @@ def region(profile, address):
     return "Não documentada"
 
 def read_plan(profile, entries):
-    if profile != "IR35217":
-        raise ValueError("IR3567B: a leitura do TXT usa PMBus com PEC na aba Arquivo TXT. Este lote por I²C direto permanece no IR35217.")
-    return [e.address for e in entries if 0x24 <= e.address <= 0x96 or 0x98 <= e.address <= 0xA5]
+    from .controller_store import get
+    try:
+        chip = get(profile)
+    except KeyError:
+        raise ValueError('Selecione o CI correto na lista Controlador antes de ler a placa.') from None
+    spans = [(item['start'], item['end']) for item in chip.get('regions') or []]
+    if not spans:
+        raise ValueError('O JSON selecionado não declara regiões de leitura.')
+    return [entry.address for entry in entries if any(start <= entry.address <= end for start, end in spans)]

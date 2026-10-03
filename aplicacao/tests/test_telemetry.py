@@ -5,6 +5,9 @@ from app.telemetry import collect,decode_fixed,interpret,linear11,vout_pin
 from test_transport import FakeSerial
 
 class TelemetryTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
     def test_signed_linear11(self):
         self.assertEqual(linear11(45),45)
         self.assertEqual(linear11((31<<11)|100),50)
@@ -16,6 +19,13 @@ class TelemetryTests(unittest.TestCase):
         self.assertAlmostEqual(vout_pin(1.10107421875,15),1.15732421875)
         self.assertGreater(high-low,0.04)
         self.assertAlmostEqual(high-low,1.15732421875-1.1056640625)
+    def test_ir35217_vout_uses_its_own_json_offset(self):
+        from app.controller_store import select
+        select('IR35217')
+        try:
+            self.assertAlmostEqual(interpret(0x8B,{'value_raw':2162},0x15,8)['value'],2162/2048)
+        finally:
+            select('IR3567B')
     def test_vout_read_exponent(self):
         self.assertEqual(interpret(0x8B,{'value_raw':512},0x17)['value'],1)
         self.assertIsNone(interpret(0x8B,{'value_raw':512},None)['value'])
@@ -26,14 +36,14 @@ class TelemetryTests(unittest.TestCase):
         self.assertEqual(result['value_raw'],512)
         with self.assertRaises(ValueError):decode_fixed('OK BLOCK 02 0002 00',0x70,0x8B)
     def test_allowlist_no_io(self):
-        p=Pico.__new__(Pico);p.version=5
+        p=Pico.__new__(Pico);p.version=16
         with self.assertRaises(ValueError):p.telemetry_read(0x70,0x03)
     def test_wire(self):
-        p=Pico.__new__(Pico);p.version=5
+        p=Pico.__new__(Pico);p.version=16
         check=crc8(bytes.fromhex('E0 20 E1 17'))
         p.serial=FakeSerial(f'OK BLOCK 01 17 {check:02X}\n'.encode())
         self.assertEqual(p.telemetry_read(0x70,0x20)['value_raw'],23)
-        self.assertEqual(p.serial.sent,[b'TEL 70 20\n'])
+        self.assertEqual(p.serial.sent,[b'GPM 70 20 01 01 00\n'])
     def test_collection(self):
         r=collect(Simulated([]),0x30,100,1,Event(),lambda _:None)
         self.assertTrue(r['complete'])

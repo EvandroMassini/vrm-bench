@@ -6,6 +6,9 @@ from app.core import parse_config
 from test_ramtest import Bench
 
 class DumpTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
     def test_map_matches_asus_column_three(self):
         entries = parse_config((Path(__file__).parents[1] / 'samples' / 'ASUS_STRIX_RX580_IR3567B_6PH.txt').read_text())
         self.assertEqual([entry.address for entry in entries], list(ADDRESSES))

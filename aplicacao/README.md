@@ -1,3 +1,35 @@
+# Novidades da versão 0.52
+
+Gravar dump completo, na aba Parâmetros e gravação, copia a área USER de um dump para o controlador ligado e grava um slot. O trim e a área de fabricante deste CI permanecem os dele. Gravar somente parâmetros modificados grava só o que já foi alterado e aplicado em RAM. No IR3567B, os registradores 228 e 229 são zerados antes da cópia completa, como no ProgramComanche. O CI novo precisa responder como o modelo selecionado.
+
+---
+
+# Novidades da versão 0.51
+
+Importar dump, na aba Parâmetros e gravação, não recusa o arquivo inteiro. Linhas inválidas e valores contraditórios são contados. Entram só os registradores que existem no JSON selecionado. Um valor sem regra de validação também entra e pode ser gravado depois. Havendo ocorrências, a tela pede confirmação e a gravação fica sob responsabilidade de quem confirmou. O parâmetro só é deixado de fora quando não há código único para gravar.
+
+---
+
+# Novidades da versão 0.50
+
+O aplicativo usa o firmware de protocolo 16. Cada operação segue o JSON escolhido: leitura, telemetria, dump e gravação. Um perfil incompleto aparece como recusado e não entra na lista. O IR35217 é identificado no registrador FB. Os parâmetros editáveis respeitam a máscara de escrita do perfil. O ensaio antigo de RAM não é enviado a esse firmware.
+
+Um Pico de protocolo anterior ainda se identifica. Gravação, recarga e habilitação pedem o protocolo 16.
+
+---
+
+# Novidades da versão 0.49
+
+Gravar somente parâmetros modificados compara a RAM com a leitura feita antes da alteração. O valor 0 aplicado no código 26 deixa de ser recusado só porque o arquivo de exemplo já estava em FF.
+
+---
+
+# Novidades da versão 0.48
+
+As listas fechadas do IR35217 que cabem na faixa USER usam a mesma escrita do IR3567B: o código entra nos bits do registrador, com o bit 7 à esquerda. Uma leitura da placa que não devolve o mapa do JSON escolhido, ou que devolve um registrador de fora desse mapa, mostra um alerta e não carrega os valores.
+
+---
+
 # Novidades da versão 0.47
 
 Combo inicia em “Selecione o CI”. Parâmetros e leituras da placa esperam o modelo escolhido.
@@ -96,7 +128,7 @@ Confirmações usam Sim e Não. Ler placa não pede arquivo; Salvar leitura pede
 
 # Novidades da versão 0.31
 
-Catálogo do IR3567B ampliado para 44 campos, com conversões rastreadas no PowIRCenter 1.0.8712 (formulários Comanche). Firmware UF2 0.26 e protocolo 15 não mudaram.
+Catálogo do IR3567B ampliado para 44 campos, com as conversões que puderam ser conferidas. Firmware UF2 0.26 e protocolo 15 não mudaram.
 
 Edição liberada, após teste de ida e volta e de preservação de bits: compensação de carga, sobrecorrente rápida e lenta, sobretensão e subtensão relativas, tensão máxima no ramo SVI, limiares acumulados de fase e tipo de driver. Código 0 da compensação de carga é exibido como 1 mΩ; gravar 1 mΩ usa o código linear. Sem fases no loop, a corrente fica somente leitura.
 
@@ -139,7 +171,7 @@ Interface reorganizada sobre os fontes da versão 0.28. Firmware: manter UF2 0.2
 
 ## Validação de valores e importação
 
-Aceita vírgula ou ponto decimal. Rejeita texto hexadecimal, infinito, NaN, valores fora da faixa e passos não representáveis. A frequência informa o valor realizável mais próximo em vez de arredondar silenciosamente. Offset mantém os bits do outro loop; duas propostas no mesmo registrador geram uma única escrita. Tensão de partida usa o ramo AMD do decodificador Comanche, com passos de 0,0125 V e efeito na próxima partida (religamento separado na manutenção).
+Aceita vírgula ou ponto decimal. Rejeita texto hexadecimal, infinito, NaN, valores fora da faixa e passos não representáveis. A frequência informa o valor realizável mais próximo em vez de arredondar silenciosamente. Offset mantém os bits do outro loop; duas propostas no mesmo registrador geram uma única escrita. Tensão de partida usa o ramo AMD, com passos de 0,0125 V e efeito na próxima partida (religamento separado na manutenção).
 
 Importar TXT preenche somente propostas diferentes que tenham conversão validada; não substitui a leitura atual nem escreve automaticamente. O modo deve coincidir com o da placa; máscaras incompatíveis são rejeitadas. Diferenças fora dos campos editáveis são contadas na tela e não aplicadas. Não é um gravador irrestrito de dumps de outra placa.
 

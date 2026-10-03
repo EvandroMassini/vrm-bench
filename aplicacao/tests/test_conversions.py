@@ -6,6 +6,8 @@ from app.field_map import FIELDS
 
 class ConversionTests(unittest.TestCase):
     def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
         self.values={0x14:0x02,0x1A:0xAB,0x1B:0xCD,0x1C:0xEF,0x1D:0x5A,0x24:40,0x25:20,0x33:0x45,0x3D:0x3C,0x38:0x01,0x4D:0xE5,0x4E:0x00,0x61:0x00,0x63:0x40}
 
     def test_descriptors_match_phase_table(self):
@@ -83,7 +85,7 @@ class ConversionTests(unittest.TestCase):
     def test_report_names_the_source(self):
         text,source=convert('LOOP_1_VMAX',3,{0x3D:{'value':0x30}})
         self.assertEqual(text,'1,14375 V')
-        self.assertIn('GamerFrom_Load',source)
+        self.assertIn('ramo SVI',source)
         self.assertIn('Desliga após 7 tentativas',convert('OCP_MODE',1,{})[0])
 
     def test_phase_rows_use_two_amp_code_and_loop_counts(self):

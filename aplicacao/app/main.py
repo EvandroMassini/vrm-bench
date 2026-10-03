@@ -35,7 +35,7 @@ from .dashboard import DashboardMixin, TELEMETRY_NAMES
 class Window(DashboardMixin,QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("VRM Bench 0.48 — painel de controle")
+        self.setWindowTitle("VRM Bench 0.52 — painel de controle")
         self.setWindowIcon(application_icon())
         from .parameters import set_overwrite_prompt
         set_overwrite_prompt(self.ask_overwrite)
@@ -53,6 +53,8 @@ class Window(DashboardMixin,QMainWindow):
         self.use_simulation=False
         from .ui import build_ui
         build_ui(self)
+        from .controller_store import errors
+        for filename,error in errors().items():self.note(f'Perfil recusado: {filename}: {error}')
         for signal in (self.profile.currentTextChanged,self.port.currentTextChanged):
             signal.connect(self.invalidate)
         self.profile.currentTextChanged.connect(self.profile_changed)
@@ -123,7 +125,7 @@ class Window(DashboardMixin,QMainWindow):
             raise ValueError('Esta operação usa o Pico.')
 
     def profile_changed(self,*_):
-        from .controller_store import select
+        from .controller_store import select, clear, identity_register_text
         self.work_generation+=1
         self.cancelled.set()
         self.entries=[]
@@ -133,15 +135,15 @@ class Window(DashboardMixin,QMainWindow):
         try:
             chip=select(self.profile.currentText())
         except KeyError:
-            chip=None
+            clear();chip=None
         if chip and hasattr(self,'address'):
             self.address.setText(chip['bus']['pmbus'])
             self.direct_address.setText(chip['bus']['direct'])
-        if hasattr(self,'register'):self.register.setText(chip['bus']['register'] if chip else '')
+        if hasattr(self,'register'):self.register.setText(identity_register_text(chip) if chip else '')
         if hasattr(self,'preset'):self.apply_preset()
         if hasattr(self,'live_values'):
             self.monitor_requested=False;self.monitoring=False;self.monitor_timer.stop();self.collecting_telemetry=False
-            self.proposals={};self.live_values={};self.imported_values=None;self.sample_counter=0
+            self.proposals={};self.live_values={};self.imported_values=None;self.import_problems=set();self.import_notice='';self.edit_origin=None;self.ram_dirty=False;self.sample_counter=0
             self.telemetry_history.clear();self.telemetry_table.setRowCount(0)
             for values in self.graph_data.values():values.clear()
             for label in self.metric_labels.values():
@@ -156,7 +158,9 @@ class Window(DashboardMixin,QMainWindow):
                 self.unload_parameters()
                 self.editor_state.setText('Selecione o CI para carregar os parâmetros.')
             self.monitor_state.setText('Monitoramento parado.')
+        self.rebuild_telemetry_panel()
         self.render()
+        if chip:self.note(chip.get('validation',{}).get('notice',''))
         if chip:self.note('Controlador alterado. Atividades do CI anterior foram interrompidas e os parâmetros passaram a ser os do JSON selecionado.')
         else:self.note('Nenhum CI selecionado. Escolha o modelo para carregar os parâmetros.')
 
@@ -406,7 +410,9 @@ class Window(DashboardMixin,QMainWindow):
         from .ui import REFERENCE
         index=self.preset.currentIndex()
         from .catalog import INITIAL,EXTENDED
-        self.reg_list.setText([INITIAL,'0D','',EXTENDED][index])
+        from .controller_store import identity_register_text
+        choice = [str(INITIAL), identity_register_text(self.chip()), '', str(EXTENDED)][index]
+        self.reg_list.setText(choice)
         self.reg_reference.setText(REFERENCE if index!=2 else '')
 
     @staticmethod
@@ -660,7 +666,7 @@ class Window(DashboardMixin,QMainWindow):
             from .report import collect
             self.check_bus()
             self.require_pico_controller()
-            if self.target_address()!=self.pmbus() or self.target_address(self.direct_address)!=self.direct():raise ValueError('Use PMBus 70 e I²C 08')
+            if self.target_address()!=self.pmbus() or self.target_address(self.direct_address)!=self.direct():raise ValueError('Os endereços PMBus e I²C informados diferem do JSON selecionado.')
             link=self.link;reference=getattr(self,'report_reference',[])
             self.run(lambda:collect(link,CAPTURES/'backups',reference),self.render_report)
         self.guard(start)
@@ -686,7 +692,7 @@ class Window(DashboardMixin,QMainWindow):
             from .parameters import snapshot
             self.check_bus()
             self.require_pico_controller()
-            if self.target_address()!=self.pmbus() or self.target_address(self.direct_address)!=self.direct():raise ValueError('Use PMBus 70 e I²C 08.')
+            if self.target_address()!=self.pmbus() or self.target_address(self.direct_address)!=self.direct():raise ValueError('Os endereços PMBus e I²C informados diferem do JSON selecionado.')
             link=self.link
             self.clear_capture();self.scan_result=None
             def done(result):
@@ -707,7 +713,7 @@ class Window(DashboardMixin,QMainWindow):
             from .user_capture import collect
             self.check_bus()
             self.require_pico_controller()
-            if self.target_address()!=self.pmbus():raise ValueError('Use PMBus 70.')
+            if self.target_address()!=self.pmbus():raise ValueError('O endereço PMBus informado difere do JSON selecionado.')
             link=self.link;self.clear_capture();self.scan_result=None
             def done(result):
                 self.identity_result=result
@@ -723,8 +729,8 @@ class Window(DashboardMixin,QMainWindow):
             from .parameters import save_backup
             self.check_bus()
             self.require_pico_controller()
-            if self.target_address()!=self.pmbus() or self.target_address(self.direct_address)!=self.direct():raise ValueError('Este ensaio exige PMBus 70 e I²C 08.')
-            if self.link.version!=12:raise ValueError('Atualize o Pico com o UF2 0.21, protocolo 12.')
+            if self.target_address()!=self.pmbus() or self.target_address(self.direct_address)!=self.direct():raise ValueError('Os endereços PMBus e I²C informados diferem do JSON selecionado.')
+            if self.link.version!=16:raise ValueError('Atualize o Pico com o UF2 0.50, protocolo 16.')
             if not self.ensoft_confirm.isChecked():raise ValueError('Marque a autorização do ensaio reversível.')
             link=self.link
             self.ensoft_confirm.setChecked(False)
@@ -758,7 +764,7 @@ class Window(DashboardMixin,QMainWindow):
             from .verify_user import compare_live
             self.check_bus()
             self.require_pico_controller()
-            if self.target_address()!=self.pmbus():raise ValueError('Use PMBus 70.')
+            if self.target_address()!=self.pmbus():raise ValueError('O endereço PMBus informado difere do JSON selecionado.')
             link=self.link
             self.clear_capture();self.scan_result=None
             def done(result):
@@ -778,7 +784,7 @@ class Window(DashboardMixin,QMainWindow):
             from .config_dump import capture
             self.check_bus()
             self.require_pico_controller()
-            if self.target_address()!=self.pmbus():raise ValueError('Use PMBus 70.')
+            if self.target_address()!=self.pmbus():raise ValueError('O endereço PMBus informado difere do JSON selecionado.')
             link=self.link
             self.clear_capture();self.scan_result=None;self.dump_log.clear()
             self.progress.setRange(0,260);self.progress.setValue(0)
@@ -838,12 +844,12 @@ class Window(DashboardMixin,QMainWindow):
             self.check_bus()
             self.require_pico_controller()
             if self.target_address() != self.pmbus() or self.target_address(self.direct_address) != self.direct():
-                raise ValueError('Use PMBus 70 e I²C 08.')
+                raise ValueError('Os endereços PMBus e I²C informados diferem do JSON selecionado.')
             if not self.param_confirm.isChecked():
                 raise ValueError('Marque a autorização antes de alterar o byte.')
-            if not self.link or self.link.version not in (13, 14, 15):
+            if not self.link or self.link.version!=16:
                 current = self.link.version if self.link else 'desconhecido'
-                raise ValueError(f'O Pico responde protocolo {current}. Este byte em RAM funciona nos protocolos 13, 14 e 15. O UF2 atual é o 0.26, protocolo 15.')
+                raise ValueError(f'O Pico responde protocolo {current}. Este byte em RAM usa o firmware de protocolo 16.')
             data = self.param_register.currentData()
             if not data:
                 raise ValueError('Escolha um registrador do arquivo.')
@@ -877,9 +883,9 @@ class Window(DashboardMixin,QMainWindow):
             self.require_pico_controller()
             if not self.reen_confirm.isChecked():
                 raise ValueError('Marque a autorização antes de religar as saídas.')
-            if not self.link or self.link.version not in (12, 13, 14, 15):
+            if not self.link or self.link.version != 16:
                 current = self.link.version if self.link else 'desconhecido'
-                raise ValueError(f'O Pico responde protocolo {current}. Este religamento funciona no protocolo 15.')
+                raise ValueError(f'O Pico responde protocolo {current}. Este religamento funciona no protocolo 16.')
             link = self.link
             self.reen_confirm.setChecked(False)
             self.param_log.clear()
@@ -902,12 +908,12 @@ class Window(DashboardMixin,QMainWindow):
             self.check_bus()
             self.require_pico_controller()
             if self.target_address() != self.pmbus() or self.target_address(self.direct_address) != self.direct():
-                raise ValueError('Use PMBus 70 e I²C 08.')
+                raise ValueError('Os endereços PMBus e I²C informados diferem do JSON selecionado.')
             if not self.reload_confirm.isChecked():
                 raise ValueError('Marque a autorização antes da recarga.')
-            if not self.link or self.link.version not in (14, 15):
+            if not self.link or self.link.version != 16:
                 current = self.link.version if self.link else 'desconhecido'
-                raise ValueError(f'O Pico responde protocolo {current}. A recarga funciona nos protocolos 14 e 15.')
+                raise ValueError(f'O Pico responde protocolo {current}. A recarga funciona no protocolo 16.')
             link = self.link
             self.reload_confirm.setChecked(False)
             self.reload_log.clear()
@@ -915,7 +921,7 @@ class Window(DashboardMixin,QMainWindow):
                 self.reload_log.setPlainText(json.dumps(result, indent=2, ensure_ascii=False))
                 self.note(self.reload_log.toPlainText())
                 if result.get('complete'):
-                    self.status.setText('Recarga confirmada | imagem igual ao arquivo desta placa | nenhum slot gravado')
+                    self.status.setText('Recarga confirmada | imagem relida e CRC conferido | nenhum slot gravado')
                 elif result.get('reload_confirmed'):
                     self.status.setText('Recarga executada | imagem diferente ou instável | nenhum slot gravado')
                 else:
@@ -930,9 +936,9 @@ class Window(DashboardMixin,QMainWindow):
             from .slot_commit import preview_changes
             self.check_bus()
             self.require_pico_controller()
-            if not self.link or self.link.version != 15:
+            if not self.link or self.link.version != 16:
                 current = self.link.version if self.link else 'desconhecido'
-                raise ValueError(f'O Pico responde protocolo {current}. Continue com o UF2 0.26, protocolo 15.')
+                raise ValueError(f'O Pico responde protocolo {current}. Continue com o UF2 0.50, protocolo 16.')
             link = self.link
             self.change_token = None
             self.commit_log.clear()
@@ -958,14 +964,14 @@ class Window(DashboardMixin,QMainWindow):
             self.check_bus()
             self.require_pico_controller()
             if self.target_address() != self.pmbus() or self.target_address(self.direct_address) != self.direct():
-                raise ValueError('Use PMBus 70 e I²C 08.')
+                raise ValueError('Os endereços PMBus e I²C informados diferem do JSON selecionado.')
             if not self.commit_confirm.isChecked():
                 raise ValueError('Marque a autorização antes de gravar o slot.')
             if not getattr(self, 'change_token', None):
                 raise ValueError('Leia as diferenças primeiro. A imagem precisa diferir do arquivo.')
-            if not self.link or self.link.version != 15:
+            if not self.link or self.link.version != 16:
                 current = self.link.version if self.link else 'desconhecido'
-                raise ValueError(f'O Pico responde protocolo {current}. Continue com o UF2 0.26, protocolo 15.')
+                raise ValueError(f'O Pico responde protocolo {current}. Continue com o UF2 0.50, protocolo 16.')
             link = self.link
             token = self.change_token
             self.commit_confirm.setChecked(False)
@@ -1009,7 +1015,7 @@ class Window(DashboardMixin,QMainWindow):
             from .mtp_status import inspect
             self.check_bus()
             self.require_pico_controller()
-            if self.target_address()!=self.pmbus():raise ValueError('Use PMBus 70.')
+            if self.target_address()!=self.pmbus():raise ValueError('O endereço PMBus informado difere do JSON selecionado.')
             link=self.link;self.clear_capture();self.scan_result=None
             def done(result):
                 self.identity_result=result
@@ -1023,8 +1029,11 @@ class Window(DashboardMixin,QMainWindow):
             from .ramedit import change
             self.check_bus()
             self.require_pico_controller()
-            if self.target_address()!=self.pmbus() or self.target_address(self.direct_address)!=self.direct():raise ValueError('Use PMBus 70 e I²C 08.')
-            if self.link.version not in (11,12):raise ValueError('Atualize o firmware para 0.18 / protocolo 11 ou 0.21 / protocolo 12.')
+            if self.target_address()!=self.pmbus() or self.target_address(self.direct_address)!=self.direct():raise ValueError('Os endereços PMBus e I²C informados diferem do JSON selecionado.')
+            if not (self.chip().get('capabilities') or {}).get('ram_probe'):
+                raise ValueError('O perfil selecionado não habilita a edição de RAM por este ensaio.')
+            if self.link.version != 16:
+                raise ValueError(f'O Pico responde protocolo {self.link.version}. Esta operação usa o firmware de protocolo 16.')
             if not restore and not self.edit_confirm.isChecked():raise ValueError('Marque a autorização para manter o offset em RAM.')
             self.edit_confirm.setChecked(False);link=self.link
             self.clear_capture();self.scan_result=None
@@ -1046,15 +1055,20 @@ class Window(DashboardMixin,QMainWindow):
             from .ramtest import experiment
             self.check_bus()
             self.require_pico_controller()
-            if self.target_address()!=self.pmbus() or self.target_address(self.direct_address)!=self.direct():raise ValueError('Este ensaio exige PMBus 70 e I²C 08.')
-            if self.link.version not in (9,10,11,12):raise ValueError('Atualize o Pico com o UF2 v0.13 (protocolo 9 RAMTEST).')
-            if hold and self.link.version not in (10,11,12):raise ValueError('Atualize para firmware 0.17, protocolo 10.')
+            if self.target_address()!=self.pmbus() or self.target_address(self.direct_address)!=self.direct():raise ValueError('Os endereços PMBus e I²C informados diferem do JSON selecionado.')
+            if not (self.chip().get('capabilities') or {}).get('ram_probe'):
+                raise ValueError('O perfil selecionado não habilita o ensaio de RAM.')
+            if self.link.version != 16:
+                raise ValueError(f'O Pico responde protocolo {self.link.version}. Esta operação usa o firmware de protocolo 16.')
             if not self.ram_confirm.isChecked():raise ValueError('Confira e marque a confirmação do ensaio na sucata sem GPU.')
             link=self.link
             self.ram_confirm.setChecked(False)
             self.clear_capture();self.scan_result=None;self.ram_log.clear()
-            if hold:self.note('Ensaio de medição: EF será mantido por 10 segundos após confirmação; restauração local automática. Aguarde o resultado.')
-            self.note('Ensaio único 26: FF → EF → FF, 100 kHz. Não desconecte a alimentação durante o teste.')
+            probe = self.chip().get('ram_probe')
+            if not probe:
+                raise ValueError('O JSON selecionado não descreve o ensaio de RAM.')
+            if hold:self.note('Ensaio de medição: o byte de teste permanece pelo tempo declarado no JSON; restauração local automática. Aguarde o resultado.')
+            self.note(f'Ensaio único {int(probe["register"]):02X}: {int(probe["original"]):02X} → {int(probe["test"]):02X} → {int(probe["original"]):02X}, {self.chip()["bus"]["speed_khz"]} kHz. Não desconecte a alimentação durante o teste.')
             def done(result):
                 result['source']='Pico USB';self.identity_result=result
                 text=json.dumps(result,indent=2,ensure_ascii=False);self.ram_log.setPlainText(text);self.note(text)

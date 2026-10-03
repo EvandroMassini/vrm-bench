@@ -8,8 +8,8 @@ from app.transport import port_caption
 class ControllerFileTests(unittest.TestCase):
     def test_each_json_file_becomes_one_controller(self):
         folder = Path(tempfile.mkdtemp())
-        (folder / 'ZZ.json').write_text(json.dumps({'id': 'ZZ'}), encoding='utf-8')
-        (folder / 'AA.json').write_text(json.dumps({'id': 'AA'}), encoding='utf-8')
+        (folder / 'ZZ.json').write_text(json.dumps(dict(__import__('app.controller_store',fromlist=['get']).get('IR3567B'),id='ZZ')), encoding='utf-8')
+        (folder / 'AA.json').write_text(json.dumps(dict(__import__('app.controller_store',fromlist=['get']).get('IR3567B'),id='AA')), encoding='utf-8')
         try:
             found = load(folder)
             self.assertEqual(list(found), ['AA', 'ZZ'])

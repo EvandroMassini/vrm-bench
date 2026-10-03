@@ -10,6 +10,9 @@ class Editable(Bench):
         self.calls+=1;self.value=int(command.split()[-1],16)
         return f'OK RAMSET 01 00 01 {self.value:02X} 22'
 class EditTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
     def test_apply_restore(self):
         b=Editable([])
         with tempfile.TemporaryDirectory() as d:

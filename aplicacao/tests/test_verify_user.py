@@ -3,13 +3,17 @@ from app.verify_user import compare_live,crc_flags,differences,load_image,mask_o
 from test_ramtest import Bench
 
 class ImageBench(Bench):
-    image=load_image()
+    image=None
     def register_read(self,address,register):
         if register==0xA5:return dict(value=0,pec_verified=True)
-        if register in self.image['values']:return dict(value=self.image['values'][register],pec_verified=True)
+        if self.image and register in self.image['values']:return dict(value=self.image['values'][register],pec_verified=True)
         return dict(value=0,pec_verified=True)
 
 class VerifyTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
+        ImageBench.image=load_image()
     def test_known_masks(self):
         self.assertEqual(mask_of(0x10),0xFF)
         self.assertEqual(mask_of(0x4F),0)

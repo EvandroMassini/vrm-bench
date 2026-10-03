@@ -4,6 +4,9 @@ from app.core import Entry
 from test_ramtest import Bench
 import tempfile
 class ReportTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
     def test_msb_and_masks(self):
         rows=analyze({'26':{'value':0xEF}},[Entry(0x26,0xFF,0x0F)])
         a=next(r for r in rows if r['field']=='LOOP_1_VID_OFFSET');b=next(r for r in rows if r['field']=='LOOP_2_VID_OFFSET')

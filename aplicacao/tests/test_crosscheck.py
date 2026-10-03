@@ -10,6 +10,9 @@ class Board(Simulated):
         return register^0x55
 
 class CrosscheckTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
     def test_extended_catalog_capture(self):
         from app.catalog import EXTENDED,LABELS
         registers=[int(r,16) for r in EXTENDED.split()]

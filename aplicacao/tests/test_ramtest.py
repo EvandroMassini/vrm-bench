@@ -14,6 +14,9 @@ class Bench(Simulated):
         return 'OK RAMTEST 01 01 EF 01 01 FF 34'
 
 class RamTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
     def test_success_one_command(self):
         b=Bench([]);r=experiment(b)
         self.assertEqual(b.calls,1);self.assertTrue(r['change_confirmed']);self.assertTrue(r['restoration_confirmed'])

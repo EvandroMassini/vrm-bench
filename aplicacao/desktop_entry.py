@@ -46,7 +46,12 @@ def run():
     wait()
     assert w.identity_result['complete'] and w.identity_result['kind']=='telemetry'
     report.with_suffix('.telemetry.json').write_text(json.dumps(w.identity_result,indent=2),encoding='utf-8')
-    assert w.telemetry_table.rowCount()==17
+    from app.controller_store import current
+    chip=current()
+    cml=chip['telemetry']['cml_command']
+    body=[item['code'] for item in chip['telemetry']['commands'] if item.get('collect', True)]
+    expected=len([cml]+[code for code in body if code!=cml]+[cml])
+    assert w.telemetry_table.rowCount()==expected
     assert [w.tabs.tabText(i) for i in range(w.tabs.count())]==['Telemetria','Dump','Parâmetros e gravação','Diagnóstico e manutenção']
     assert not w.live_values
     w.tabs.setCurrentWidget(w.telemetry_page)
@@ -54,7 +59,7 @@ def run():
     app.processEvents()
     assert w.grab().save(str(report.with_suffix(".png")))
     assert not w.windowIcon().isNull()
-    report.write_text(json.dumps(dict(ok=True,version="0.48",hardware_access=False)),encoding="utf-8")
+    report.write_text(json.dumps(dict(ok=True,version="0.52",hardware_access=False)),encoding="utf-8")
     w.close()
     app.quit()
 

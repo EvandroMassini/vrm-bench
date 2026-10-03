@@ -1,4 +1,4 @@
-"""IR3567B parameter file in the three-column dump format. Read-only."""
+"""Parameter file in the three-column dump format. Read-only."""
 import hashlib
 import os
 from datetime import datetime, timezone
@@ -9,18 +9,65 @@ from .parameters import save_backup
 from .registers import map_interface
 
 from .controller_store import current
-_dump = current()['dump']
-ADDRESSES = tuple(_dump['addresses'])
-MASK_OVERRIDES = {int(key): value for key, value in _dump['mask_overrides'].items()}
-TRIM_MASKS = {address: int(_dump['trim_special'].get(str(address), _dump['trim_mask'])) for address in range(_dump['trim_end'] + 1)}
-BLOCKED_WRITE = frozenset(_dump['blocked_write'])
-PCYES_USER_SHA256 = _dump['baseline_sha256']
+from .telemetry import cml_code
 
 def _dump():
     return current()['dump']
 
 def addresses():
     return tuple(int(item) for item in _dump()['addresses'])
+
+class _LiveAddresses:
+    def __iter__(self):
+        return iter(addresses())
+    def __len__(self):
+        return len(addresses())
+    def __getitem__(self, item):
+        return addresses()[item]
+    def __contains__(self, item):
+        return item in addresses()
+
+class _LiveMap(dict):
+    def __init__(self, loader):
+        super().__init__()
+        self._loader = loader
+    def _data(self):
+        return self._loader()
+    def __iter__(self):
+        return iter(self._data())
+    def __len__(self):
+        return len(self._data())
+    def __contains__(self, key):
+        return key in self._data()
+    def __getitem__(self, key):
+        return self._data()[key]
+    def get(self, key, default=None):
+        return self._data().get(key, default)
+    def keys(self):
+        return self._data().keys()
+    def items(self):
+        return self._data().items()
+
+def _mask_overrides():
+    return {int(key): value for key, value in (_dump().get('mask_overrides') or {}).items()}
+
+def _trim_masks():
+    dump = _dump()
+    end = int(dump.get('trim_end') or 0)
+    special = dump.get('trim_special') or {}
+    fallback = int(dump.get('trim_mask') or 0)
+    return {address: int(special.get(str(address), fallback)) for address in range(end + 1)}
+
+def _blocked_write():
+    return frozenset(_dump().get('blocked_write') or [])
+
+ADDRESSES = _LiveAddresses()
+MASK_OVERRIDES = _LiveMap(_mask_overrides)
+TRIM_MASKS = _LiveMap(_trim_masks)
+BLOCKED_WRITE = _LiveMap(lambda: {item: True for item in _blocked_write()})
+
+def baseline_sha256():
+    return _dump().get('baseline_sha256')
 
 def mask_of(address):
     if not isinstance(address, int) or not 0 <= address <= 255:
@@ -29,12 +76,12 @@ def mask_of(address):
     overrides = {int(key): value for key, value in dump['mask_overrides'].items()}
     if address in overrides:
         return overrides[address]
-    if address <= 0x0F:
+    if address <= dump['trim_boundary']:
         if address > dump['trim_end']:
             return int(dump['trim_mask'])
         special = dump.get('trim_special') or {}
         return int(special.get(str(address), dump['trim_mask']))
-    return 0xFF
+    return dump['default_mask']
 
 def _codes(items):
     shown = ', '.join(f'{address:02X}' for address in items[:12])
@@ -71,7 +118,7 @@ def format_text(values):
 def save_text(text, directory):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
-    path = directory / ('IR3567B_' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ') + '.txt')
+    path = directory / (current()['id'] + '_' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ') + '.txt')
     with path.open('x', encoding='ascii', newline='') as handle:
         handle.write(text)
         handle.flush()
@@ -80,6 +127,8 @@ def save_text(text, directory):
 
 def difference_plan(live, entries):
     rows = []
+    enable = set(int(item) for item in (current().get('status') or {}).get('enable_registers') or [])
+    blocked = frozenset(_dump().get('blocked_write') or [])
     for entry in entries:
         actual = live.get(entry.address)
         canonical = mask_of(entry.address)
@@ -91,8 +140,8 @@ def difference_plan(live, entries):
             canonical_mask_hex=f'{canonical:02X}',
             mask_matches_map=canonical == entry.mask,
             comparison=compare(entry, actual),
-            enable_register=entry.address in (0x88, 0x89),
-            blocked_for_future_write=entry.address in frozenset(_dump()['blocked_write'])))
+            enable_register=entry.address in enable,
+            blocked_for_future_write=entry.address in blocked))
     diverged = [row for row in rows if row['comparison'] == 'Diverge']
     return dict(kind='masked_dump_diff', programming_enabled=False, write_attempted=False,
                 diverge_count=len(diverged),
@@ -102,10 +151,14 @@ def difference_plan(live, entries):
                 rows=rows,
                 note='Diferenças sob a máscara da terceira coluna. Nenhum byte foi escrito.')
 
-def _read_pass(link, chosen, progress, done):
+def _bus():
+    bus = current()['bus']
+    return int(bus['pmbus'], 16), int(bus['direct'], 16), int(bus['speed_khz'])
+
+def _read_pass(link, chosen, progress, done, pmbus):
     values = {}
     for address in chosen:
-        reading = link.register_read(0x70, address)
+        reading = link.register_read(pmbus, address)
         if not reading['pec_verified']:
             raise ValueError(f'PEC inválido em {address:02X}')
         values[address] = reading['value']
@@ -116,9 +169,10 @@ def _read_pass(link, chosen, progress, done):
 
 def capture(link, directory, progress=None, address_list=None):
     chosen = tuple(address_list) if address_list is not None else addresses()
+    pmbus, _direct, speed = _bus()
     dump = _dump()
-    overrides = {int(key): value for key, value in dump['mask_overrides'].items()}
-    blocked = frozenset(dump['blocked_write'])
+    overrides = {int(key): value for key, value in (dump.get('mask_overrides') or {}).items()}
+    blocked = frozenset(dump.get('blocked_write') or [])
     result = dict(kind='config_dump', timestamp_utc=datetime.now(timezone.utc).isoformat(),
                   complete=False, error=None, programming_enabled=False, write_attempted=False,
                   addresses=[f'{address:02X}' for address in chosen],
@@ -127,12 +181,12 @@ def capture(link, directory, progress=None, address_list=None):
                   scope='Lê o mapa do CI selecionado pelo PMBus e grava endereço, valor ativo e máscara. Não recarrega OTP e não escreve parâmetros.')
     try:
         check(link, result)
-        result['mapping'] = map_interface(link, 0x70, 100)
-        result['cml_before'] = link.telemetry_read(0x70, 0x7E)
+        result['mapping'] = map_interface(link, pmbus, speed)
+        result['cml_before'] = link.telemetry_read(pmbus, cml_code())
         done = [0]
-        first = _read_pass(link, chosen, progress, done)
-        second = _read_pass(link, chosen, progress, done)
-        result['cml_after'] = link.telemetry_read(0x70, 0x7E)
+        first = _read_pass(link, chosen, progress, done, pmbus)
+        second = _read_pass(link, chosen, progress, done, pmbus)
+        result['cml_after'] = link.telemetry_read(pmbus, cml_code())
         changed = [f'{address:02X}' for address in chosen if first[address] != second[address]]
         result['changed_registers'] = changed
         result['stable'] = not changed

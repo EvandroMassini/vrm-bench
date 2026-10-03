@@ -2,6 +2,9 @@ import tempfile,unittest
 from app.user_capture import collect,decode_status,STATUS
 from test_ramtest import Bench
 class CaptureTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
     def test_two_passes_complete_no_write(self):
         class Read(Bench):
             reads=0

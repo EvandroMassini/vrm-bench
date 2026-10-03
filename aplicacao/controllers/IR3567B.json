@@ -174,97 +174,145 @@
         "code": 214,
         "name": "I2C_ADDRESS_CONTROL",
         "bytes": 1,
-        "unit": "hex"
+        "unit": "hex",
+        "decoder": "raw",
+        "byteorder": "little",
+        "collect": false
       },
       {
         "code": 25,
         "name": "CAPABILITY",
         "bytes": 1,
-        "unit": "hex"
+        "unit": "hex",
+        "decoder": "raw",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 32,
         "name": "VOUT_MODE",
         "bytes": 1,
-        "unit": "hex"
+        "unit": "hex",
+        "decoder": "raw",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 120,
         "name": "STATUS_BYTE",
         "bytes": 1,
-        "unit": "hex"
+        "unit": "hex",
+        "decoder": "raw",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 121,
         "name": "STATUS_WORD",
         "bytes": 2,
-        "unit": "hex"
+        "unit": "hex",
+        "decoder": "raw",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 125,
         "name": "STATUS_TEMPERATURE",
         "bytes": 1,
-        "unit": "hex"
+        "unit": "hex",
+        "decoder": "raw",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 126,
         "name": "STATUS_CML",
         "bytes": 1,
-        "unit": "hex"
+        "unit": "hex",
+        "decoder": "raw",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 128,
         "name": "STATUS_MFR_SPECIFIC",
         "bytes": 1,
-        "unit": "hex"
+        "unit": "hex",
+        "decoder": "raw",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 136,
         "name": "READ_VIN",
         "bytes": 2,
-        "unit": "V"
+        "unit": "V",
+        "decoder": "linear11",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 137,
         "name": "READ_IIN",
         "bytes": 2,
-        "unit": "A"
+        "unit": "A",
+        "decoder": "linear11",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 139,
         "name": "READ_VOUT",
         "bytes": 2,
-        "unit": "V"
+        "unit": "V",
+        "decoder": "linear16",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 140,
         "name": "READ_IOUT",
         "bytes": 2,
-        "unit": "A"
+        "unit": "A",
+        "decoder": "linear11",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 141,
         "name": "READ_TEMPERATURE_1",
         "bytes": 2,
-        "unit": "°C"
+        "unit": "°C",
+        "decoder": "linear11",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 142,
         "name": "READ_TEMPERATURE_2",
         "bytes": 2,
-        "unit": "°C"
+        "unit": "°C",
+        "decoder": "linear11",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 150,
         "name": "READ_POUT",
         "bytes": 2,
-        "unit": "W"
+        "unit": "W",
+        "decoder": "linear11",
+        "byteorder": "little",
+        "collect": true
       },
       {
         "code": 151,
         "name": "READ_PIN",
         "bytes": 2,
-        "unit": "W"
+        "unit": "W",
+        "decoder": "linear11",
+        "byteorder": "little",
+        "collect": true
       }
     ],
     "metrics": [
@@ -376,8 +424,10 @@
       "zero_nibble": 15,
       "zero_volts": 0.05625,
       "other_volts": 0.05,
-      "tooltip": "Linear16 mais 50 mV. Com o ajuste em 0 mV, mais 56,25 mV."
-    }
+      "tooltip": "Linear16 mais 50 mV. Com o ajuste em 0 mV, mais 56,25 mV"
+    },
+    "cml_command": 126,
+    "mode_command": 32
   },
   "dump": {
     "addresses": [
@@ -531,7 +581,9 @@
       208
     ],
     "baseline_sha256": "439811c3a9ca6d43d3d721fc26f7d4029d427761f01597950918107c3a9e7b58",
-    "baseline_file": "PcYes_IR3567B.txt"
+    "baseline_file": "PcYes_IR3567B.txt",
+    "default_mask": 255,
+    "trim_boundary": 15
   },
   "parameters": {
     "writable_start": 16,
@@ -547,23 +599,299 @@
       183,
       208
     ],
-    "direct_address": 8
+    "direct_address": 8,
+    "snapshot_registers": [
+      13,
+      20,
+      23,
+      24,
+      26,
+      27,
+      28,
+      29,
+      34,
+      35,
+      36,
+      37,
+      38,
+      49,
+      50,
+      51,
+      52,
+      56,
+      61,
+      77,
+      78,
+      97,
+      99,
+      141,
+      142
+    ],
+    "vid_loops_register": 38,
+    "write_masks": {
+      "16": 255,
+      "17": 255,
+      "18": 255,
+      "19": 255,
+      "21": 255,
+      "22": 255,
+      "23": 255,
+      "24": 255,
+      "25": 255,
+      "26": 255,
+      "27": 255,
+      "28": 255,
+      "29": 255,
+      "30": 255,
+      "31": 255,
+      "32": 255,
+      "33": 255,
+      "34": 255,
+      "35": 255,
+      "36": 255,
+      "37": 255,
+      "38": 255,
+      "39": 255,
+      "40": 255,
+      "41": 255,
+      "42": 255,
+      "43": 255,
+      "44": 255,
+      "45": 255,
+      "46": 255,
+      "47": 255,
+      "48": 255,
+      "49": 255,
+      "50": 255,
+      "51": 255,
+      "52": 255,
+      "53": 255,
+      "54": 255,
+      "55": 255,
+      "56": 255,
+      "57": 255,
+      "58": 255,
+      "59": 255,
+      "60": 255,
+      "61": 255,
+      "62": 255,
+      "63": 255,
+      "64": 255,
+      "65": 255,
+      "66": 255,
+      "67": 255,
+      "68": 255,
+      "69": 255,
+      "70": 255,
+      "71": 255,
+      "72": 255,
+      "73": 255,
+      "74": 255,
+      "75": 255,
+      "76": 255,
+      "77": 255,
+      "78": 255,
+      "81": 255,
+      "82": 255,
+      "83": 255,
+      "84": 255,
+      "85": 255,
+      "86": 255,
+      "87": 255,
+      "88": 255,
+      "89": 255,
+      "90": 255,
+      "91": 255,
+      "92": 255,
+      "93": 255,
+      "94": 255,
+      "95": 255,
+      "96": 255,
+      "97": 255,
+      "98": 255,
+      "99": 255,
+      "100": 255,
+      "101": 255,
+      "102": 255,
+      "103": 255,
+      "104": 255,
+      "105": 255,
+      "106": 255,
+      "107": 255,
+      "108": 255,
+      "109": 255,
+      "110": 255,
+      "111": 255,
+      "112": 255,
+      "114": 255,
+      "115": 255,
+      "116": 255,
+      "117": 255,
+      "118": 255,
+      "119": 255,
+      "120": 255,
+      "121": 255,
+      "122": 255,
+      "123": 255,
+      "124": 255,
+      "125": 255,
+      "126": 255,
+      "127": 255,
+      "128": 255,
+      "129": 255,
+      "130": 255,
+      "131": 255,
+      "132": 255,
+      "133": 255,
+      "134": 255,
+      "135": 255,
+      "138": 255,
+      "139": 255,
+      "141": 255,
+      "142": 255,
+      "143": 255,
+      "144": 255
+    },
+    "import_guard_registers": [
+      20
+    ]
+  },
+  "status": {
+    "registers": [
+      136,
+      137,
+      150,
+      165,
+      166,
+      167,
+      169
+    ],
+    "enable_registers": [
+      136,
+      137
+    ],
+    "watch_registers": [
+      136,
+      137,
+      150,
+      169
+    ],
+    "enable_code_shift": 6,
+    "enable_codes": [
+      "Hard shutdown",
+      "Soft shutdown",
+      "Enable",
+      "Reservado"
+    ],
+    "chip_enable_register": 150,
+    "loop1_chip_enable_shift": 5,
+    "loop2_chip_enable_shift": 4,
+    "startup_register": 169,
+    "crc_register": 165,
+    "crc_mask": 7,
+    "baseline_value": 136,
+    "soft_value": 72,
+    "pin_bits": [
+      {
+        "name": "second_enable_pin_select",
+        "register": 66,
+        "offset": 1
+      },
+      {
+        "name": "second_enable_from_pin",
+        "register": 76,
+        "offset": 1
+      }
+    ]
+  },
+  "mtp": {
+    "user_pointer_register": 167,
+    "user_pointer_mask": 15,
+    "user_capacity": 9,
+    "user_sentinel": 15,
+    "opcode_base": 64,
+    "pointer_registers": [
+      166,
+      167
+    ],
+    "indicators": [
+      {
+        "name": "TRIM",
+        "register": 166,
+        "shift": 3,
+        "mask": 7,
+        "capacity": 3,
+        "sentinel": 7
+      },
+      {
+        "name": "USER",
+        "register": 167,
+        "shift": 0,
+        "mask": 15,
+        "capacity": 9,
+        "sentinel": 15
+      },
+      {
+        "name": "MFR",
+        "register": 166,
+        "shift": 0,
+        "mask": 7,
+        "capacity": 3,
+        "sentinel": 7
+      }
+    ]
+  },
+  "restore": {
+    "unlock": [
+      {
+        "register": 228,
+        "value": 0
+      },
+      {
+        "register": 229,
+        "value": 0
+      }
+    ]
+  },
+  "ram_probe": {
+    "register": 38,
+    "original": 255,
+    "test": 239,
+    "hold_ms": 10000,
+    "mode_register": 20
+  },
+  "reload": {
+    "command": "RELOAD 08 71 20 24 D0 20",
+    "clock_register": 113,
+    "other_clock_register": 153,
+    "otp_command": 208,
+    "command_byte": 32
   },
   "verify": {
     "user_start": 16,
     "user_end": 103,
     "mfr_start": 104,
     "mfr_end": 144,
+    "crc_register": 165,
+    "image_file": "user_consolidado.json",
+    "ignored": [
+      "4F",
+      "50"
+    ],
+    "mfr_unmasked": [
+      "70"
+    ],
     "masks": {
       "79": 0,
       "80": 0,
       "112": 251
-    }
+    },
+    "crc_mask": 7
   },
   "catalog": {
     "source": "https://gist.github.com/jfoster/9efd669c245820b0e8e755d15943984c",
     "authority": "Implementação comunitária; não é mapa oficial integral",
-    "interpretation": "Valores brutos. Funções indicadas pela referência; não validadas fisicamente nesta placa.",
+    "interpretation": "Valores brutos. Funções indicadas pela referência; não validadas fisicamente nesta placa",
     "initial": "0D 22 23 24 25",
     "labels": {
       "13": "Identificação",
@@ -625,7 +953,7 @@
       "unit": "",
       "hint": "identificação",
       "description": "Identificação do controlador",
-      "source": "ComancheRegisterClass",
+      "source": "",
       "conversion": {
         "type": "match",
         "editable": false,
@@ -633,7 +961,10 @@
         "text": "IR3567B",
         "else": "Identificação não confirmada"
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "amd_cmd_mode",
@@ -646,9 +977,9 @@
       "group": "Compartilhados",
       "unit": "",
       "hint": "habilitado ou desabilitado",
-      "description": "Comando AMD. Código 0 desabilita. Qualquer outro código habilita.",
-      "source": "UtilityModule.DecodeRegisterValueComanche",
-      "vendor_text": "DecodeRegisterValueComanche: code 0 = Disable, otherwise Enable.",
+      "description": "Comando AMD. Código 0 desabilita. Qualquer outro código habilita",
+      "source": "",
+      "vendor_text": "DecodeRegisterValue: code 0 = Disable, otherwise Enable",
       "conversion": {
         "editable": true,
         "options": [
@@ -673,7 +1004,10 @@
           "text": "Habilitado"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "device_personalities",
@@ -687,7 +1021,7 @@
       "unit": "",
       "hint": "Intel, MPOL, AMD ou GPU",
       "description": "Personalidade do controlador",
-      "source": "UtilityModule.UpdateDeviceMode",
+      "source": "",
       "conversion": {
         "type": "mode_pair",
         "editable": false,
@@ -725,7 +1059,10 @@
           "text": "GPU"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loops_configuration",
@@ -739,10 +1076,14 @@
       "unit": "",
       "hint": "fases por loop",
       "description": "Configuração das saídas",
-      "source": "UtilityModule.UpdatePhaseCount",
+      "source": "",
       "conversion": {
         "type": "phase_layout",
-        "editable": false
+        "editable": false,
+        "tables": [
+          "loop1_phases",
+          "loop2_phases"
+        ]
       },
       "choices": [
         {
@@ -874,7 +1215,10 @@
           "text": "0 + 0 fases"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "intel_offset_1",
@@ -887,15 +1231,18 @@
       "group": "Loop 1",
       "unit": "passos VID",
       "hint": "passos VID • −128 a 127",
-      "description": "Ajuste em passos de VID do Intel VR12. O bit 7 é o sinal. A faixa é −128 a +127.",
-      "source": "ComancheRegisterDesigner",
-      "vendor_text": "Sets the offset in VID steps for Intel VR12. Bit 7 is the sign bit.",
+      "description": "Ajuste em passos de VID do Intel VR12. O bit 7 é o sinal. A faixa é −128 a +127",
+      "source": "",
+      "vendor_text": "Sets the offset in VID steps for Intel VR12. Bit 7 is the sign bit",
       "conversion": {
         "type": "signed",
         "editable": true,
         "bits": 8
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "intel_offset_2",
@@ -908,15 +1255,18 @@
       "group": "Loop 2",
       "unit": "passos VID",
       "hint": "passos VID • −128 a 127",
-      "description": "Ajuste em passos de VID do Intel VR12. O bit 7 é o sinal. A faixa é −128 a +127.",
-      "source": "ComancheRegisterDesigner",
-      "vendor_text": "Sets the offset in VID steps for Intel VR12. Bit 7 is the sign bit.",
+      "description": "Ajuste em passos de VID do Intel VR12. O bit 7 é o sinal. A faixa é −128 a +127",
+      "source": "",
+      "vendor_text": "Sets the offset in VID steps for Intel VR12. Bit 7 is the sign bit",
       "conversion": {
         "type": "signed",
         "editable": true,
         "bits": 8
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "reduce_dvid_speed_by_10x",
@@ -929,9 +1279,9 @@
       "group": "Compartilhados",
       "unit": "",
       "hint": "habilitado ou desabilitado",
-      "description": "Com o bit ligado, a taxa de DVID, lenta ou rápida, fica dividida por 10.",
-      "source": "ComancheRegisterDesigner",
-      "vendor_text": "If the bit is set, reduce the DVID rate (slow or fast) by a factor of 10.",
+      "description": "Com o bit ligado, a taxa de DVID, lenta ou rápida, fica dividida por 10",
+      "source": "",
+      "vendor_text": "If the bit is set, reduce the DVID rate (slow or fast) by a factor of 10",
       "conversion": {
         "editable": true,
         "options": [
@@ -956,7 +1306,10 @@
           "text": "Habilitado"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "ocp_mode",
@@ -969,9 +1322,9 @@
       "group": "Compartilhados",
       "unit": "",
       "hint": "desliga na hora, após tentativas ou hiccup",
-      "description": "0 desliga imediatamente. 1 desliga após 7 tentativas. 2 faz hiccup contínuo. 3 desliga após 2 tentativas na partida e desliga imediatamente em operação.",
-      "source": "ComancheRegisterDesigner",
-      "vendor_text": "0=shutdown immediately, 1=shutdown after 7 tries, 2=continuous hiccup, 3=shutdown after 2 tries at startup/shutdown immediately during operation.",
+      "description": "0 desliga imediatamente. 1 desliga após 7 tentativas. 2 faz hiccup contínuo. 3 desliga após 2 tentativas na partida e desliga imediatamente em operação",
+      "source": "",
+      "vendor_text": "0=shutdown immediately, 1=shutdown after 7 tries, 2=continuous hiccup, 3=shutdown after 2 tries at startup/shutdown immediately during operation",
       "conversion": {
         "editable": true,
         "options": [
@@ -1012,7 +1365,10 @@
           "text": "Duas tentativas na partida; desliga em operação"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_ocp_thr",
@@ -1026,7 +1382,7 @@
       "unit": "A",
       "hint": "A",
       "description": "Sobrecorrente rápida",
-      "source": "ComancheProtection.nudLoop1FastOCP_ValueChanged",
+      "source": "",
       "conversion": {
         "type": "phase_current",
         "editable": true,
@@ -1034,7 +1390,10 @@
         "amps_per_code": 2,
         "max_code": 31
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_2_ocp_thr",
@@ -1048,7 +1407,7 @@
       "unit": "A",
       "hint": "A",
       "description": "Sobrecorrente rápida",
-      "source": "ComancheProtection.nudLoop1FastOCP_ValueChanged",
+      "source": "",
       "conversion": {
         "type": "phase_current",
         "editable": true,
@@ -1056,7 +1415,10 @@
         "amps_per_code": 2,
         "max_code": 31
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 2,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "otp_thresh",
@@ -1070,7 +1432,7 @@
       "unit": "°C",
       "hint": "°C",
       "description": "Limite de desligamento térmico",
-      "source": "ComancheProtection.trkOvtpThresh_Scroll",
+      "source": "",
       "conversion": {
         "type": "temperature_plus",
         "editable": true,
@@ -1081,7 +1443,10 @@
           "mask": 63
         }
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "temp_max",
@@ -1095,13 +1460,16 @@
       "unit": "°C",
       "hint": "°C",
       "description": "Limite de alerta térmico",
-      "source": "ComancheProtection.trkTempMax_Scroll",
+      "source": "",
       "conversion": {
         "type": "temperature",
         "editable": true,
         "base": 64
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 0
     },
     {
       "name": "ovp_thresh",
@@ -1115,7 +1483,7 @@
       "unit": "mV",
       "hint": "mV",
       "description": "Limite de sobretensão",
-      "source": "ComancheProtection.InitializeComponent",
+      "source": "",
       "conversion": {
         "type": "lookup",
         "editable": true,
@@ -1155,7 +1523,10 @@
           "text": "500 mV"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "uvp_thresh",
@@ -1169,7 +1540,7 @@
       "unit": "mV",
       "hint": "mV",
       "description": "Limite de subtensão",
-      "source": "ComancheProtection.InitializeComponent",
+      "source": "",
       "conversion": {
         "type": "lookup",
         "editable": true,
@@ -1209,7 +1580,10 @@
           "text": "500 mV"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "adc_uvp",
@@ -1248,7 +1622,10 @@
           "text": "Habilitado"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "auto_alert",
@@ -1287,7 +1664,10 @@
           "text": "Habilitado"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_ll_reg",
@@ -1301,14 +1681,17 @@
       "unit": "mΩ",
       "hint": "mΩ",
       "description": "Compensação de carga",
-      "source": "ComancheLoadlineNTCUC.RestoreSettings",
+      "source": "",
       "conversion": {
         "type": "loadline",
         "editable": true,
         "loop": 1,
         "step_mohm": 25
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_2_ll_reg",
@@ -1322,14 +1705,17 @@
       "unit": "mΩ",
       "hint": "mΩ",
       "description": "Compensação de carga",
-      "source": "ComancheLoadlineNTCUC.RestoreSettings",
+      "source": "",
       "conversion": {
         "type": "loadline",
         "editable": true,
         "loop": 2,
         "step_mohm": 50
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 2,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_ll_en",
@@ -1368,7 +1754,10 @@
           "text": "Habilitado"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": 1,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_2_ll_en",
@@ -1407,7 +1796,10 @@
           "text": "Habilitado"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": 2,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_vmax",
@@ -1421,7 +1813,7 @@
       "unit": "V",
       "hint": "V",
       "description": "Tensão máxima",
-      "source": "ComancheGamer.GamerFrom_Load ramo SVI",
+      "source": "ramo SVI",
       "conversion": {
         "type": "linear",
         "editable": true,
@@ -1495,7 +1887,10 @@
           "text": "2,49375 V"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": 1,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_2_vmax",
@@ -1509,7 +1904,7 @@
       "unit": "V",
       "hint": "V",
       "description": "Tensão máxima",
-      "source": "ComancheGamer.GamerFrom_Load ramo SVI",
+      "source": "ramo SVI",
       "conversion": {
         "type": "linear",
         "editable": true,
@@ -1583,7 +1978,10 @@
           "text": "2,49375 V"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": 2,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_vid_offset",
@@ -1597,7 +1995,7 @@
       "unit": "mV",
       "hint": "mV • passo 6,25",
       "description": "Ajuste de tensão",
-      "source": "ComancheOffset: ramo AMD, passo 6,25 mV",
+      "source": "ramo AMD, passo 6,25 mV",
       "conversion": {
         "type": "vid_offset",
         "editable": true,
@@ -1607,7 +2005,9 @@
         "require": {
           "address": 20,
           "mask": 32
-        }
+        },
+        "bits": 4,
+        "bias": 1
       },
       "choices": [
         {
@@ -1644,38 +2044,41 @@
         },
         {
           "code": 8,
-          "text": "-43,75 mV"
+          "text": "43,75 mV"
         },
         {
           "code": 9,
-          "text": "-37,5 mV"
+          "text": "37,5 mV"
         },
         {
           "code": 10,
-          "text": "-31,25 mV"
+          "text": "31,25 mV"
         },
         {
           "code": 11,
-          "text": "-25 mV"
+          "text": "25 mV"
         },
         {
           "code": 12,
-          "text": "-18,75 mV"
+          "text": "18,75 mV"
         },
         {
           "code": 13,
-          "text": "-12,5 mV"
+          "text": "12,5 mV"
         },
         {
           "code": 14,
-          "text": "-6,25 mV"
+          "text": "6,25 mV"
         },
         {
           "code": 15,
           "text": "0 mV"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": 1,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_2_vid_offset",
@@ -1689,7 +2092,7 @@
       "unit": "mV",
       "hint": "mV • passo 6,25",
       "description": "Ajuste de tensão",
-      "source": "ComancheOffset: ramo AMD, passo 6,25 mV",
+      "source": "ramo AMD, passo 6,25 mV",
       "conversion": {
         "type": "vid_offset",
         "editable": true,
@@ -1699,7 +2102,9 @@
         "require": {
           "address": 20,
           "mask": 32
-        }
+        },
+        "bits": 4,
+        "bias": 1
       },
       "choices": [
         {
@@ -1736,38 +2141,41 @@
         },
         {
           "code": 8,
-          "text": "-43,75 mV"
+          "text": "43,75 mV"
         },
         {
           "code": 9,
-          "text": "-37,5 mV"
+          "text": "37,5 mV"
         },
         {
           "code": 10,
-          "text": "-31,25 mV"
+          "text": "31,25 mV"
         },
         {
           "code": 11,
-          "text": "-25 mV"
+          "text": "25 mV"
         },
         {
           "code": 12,
-          "text": "-18,75 mV"
+          "text": "18,75 mV"
         },
         {
           "code": 13,
-          "text": "-12,5 mV"
+          "text": "12,5 mV"
         },
         {
           "code": 14,
-          "text": "-6,25 mV"
+          "text": "6,25 mV"
         },
         {
           "code": 15,
           "text": "0 mV"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": 2,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "vr_hot_mode",
@@ -1780,9 +2188,9 @@
       "group": "Compartilhados",
       "unit": "",
       "hint": "VR_HOT, Icritical ou OCP",
-      "description": "Função do pino VR_HOT. 0 só VR_HOT. 1 VR_HOT ou Icritical. 2 VR_HOT ou OCP. 3 só Icritical.",
-      "source": "ComancheRegisterDesigner",
-      "vendor_text": "The functionality of the VR_HOT pin. 0 - vr_hot. 1 - vr_hot or Icritical. 2 - vr_hot or OCP. 3 - Icritical.",
+      "description": "Função do pino VR_HOT. 0 só VR_HOT. 1 VR_HOT ou Icritical. 2 VR_HOT ou OCP. 3 só Icritical",
+      "source": "",
+      "vendor_text": "The functionality of the VR_HOT pin. 0 - vr_hot. 1 - vr_hot or Icritical. 2 - vr_hot or OCP. 3 - Icritical",
       "conversion": {
         "editable": true,
         "options": [
@@ -1823,7 +2231,10 @@
           "text": "Icritical"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "pad_output_mode",
@@ -1836,9 +2247,9 @@
       "group": "Compartilhados",
       "unit": "",
       "hint": "open drain, NMOS ou PMOS",
-      "description": "Modo elétrico dos pinos. 00 open drain. 01 NMOS. 10 PMOS.",
-      "source": "ComancheRegisterDesigner",
-      "vendor_text": "The PAD output mode. 00 - open drain. 10 - PMOS. 01 - NMOS.",
+      "description": "Modo elétrico dos pinos. 00 open drain. 01 NMOS. 10 PMOS",
+      "source": "",
+      "vendor_text": "The PAD output mode. 00 - open drain. 10 - PMOS. 01 - NMOS",
       "conversion": {
         "editable": true,
         "options": [
@@ -1871,7 +2282,10 @@
           "text": "PMOS"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_phase1_thresh",
@@ -1885,7 +2299,7 @@
       "unit": "A",
       "hint": "A",
       "description": "Limiar para operação em 2 fases",
-      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "source": "",
       "conversion": {
         "type": "phase_sum",
         "editable": true,
@@ -1898,9 +2312,13 @@
           "LOOP_1_PHASE5_DELTA",
           "LOOP_1_PHASE6_DELTA",
           "LOOP_1_PHASE7_DELTA"
-        ]
+        ],
+        "max_code": 15
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": 1,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_phase2_delta",
@@ -1914,7 +2332,7 @@
       "unit": "A",
       "hint": "A",
       "description": "Limiar para operação em 3 fases",
-      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "source": "",
       "conversion": {
         "type": "phase_sum",
         "editable": true,
@@ -1927,9 +2345,13 @@
           "LOOP_1_PHASE5_DELTA",
           "LOOP_1_PHASE6_DELTA",
           "LOOP_1_PHASE7_DELTA"
-        ]
+        ],
+        "max_code": 15
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": 2,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_phase3_delta",
@@ -1943,7 +2365,7 @@
       "unit": "A",
       "hint": "A",
       "description": "Limiar para operação em 4 fases",
-      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "source": "",
       "conversion": {
         "type": "phase_sum",
         "editable": true,
@@ -1956,9 +2378,13 @@
           "LOOP_1_PHASE5_DELTA",
           "LOOP_1_PHASE6_DELTA",
           "LOOP_1_PHASE7_DELTA"
-        ]
+        ],
+        "max_code": 15
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": 3,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_phase4_delta",
@@ -1972,7 +2398,7 @@
       "unit": "A",
       "hint": "A",
       "description": "Limiar para operação em 5 fases",
-      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "source": "",
       "conversion": {
         "type": "phase_sum",
         "editable": true,
@@ -1985,9 +2411,13 @@
           "LOOP_1_PHASE5_DELTA",
           "LOOP_1_PHASE6_DELTA",
           "LOOP_1_PHASE7_DELTA"
-        ]
+        ],
+        "max_code": 15
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": 4,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_phase5_delta",
@@ -2001,7 +2431,7 @@
       "unit": "A",
       "hint": "A",
       "description": "Limiar para operação em 6 fases",
-      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "source": "",
       "conversion": {
         "type": "phase_sum",
         "editable": true,
@@ -2014,9 +2444,13 @@
           "LOOP_1_PHASE5_DELTA",
           "LOOP_1_PHASE6_DELTA",
           "LOOP_1_PHASE7_DELTA"
-        ]
+        ],
+        "max_code": 15
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": 5,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_phase6_delta",
@@ -2030,7 +2464,7 @@
       "unit": "A",
       "hint": "A",
       "description": "Limiar para operação em 7 fases",
-      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "source": "",
       "conversion": {
         "type": "phase_sum",
         "editable": true,
@@ -2043,9 +2477,13 @@
           "LOOP_1_PHASE5_DELTA",
           "LOOP_1_PHASE6_DELTA",
           "LOOP_1_PHASE7_DELTA"
-        ]
+        ],
+        "max_code": 15
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": 6,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_phase7_delta",
@@ -2059,7 +2497,7 @@
       "unit": "A",
       "hint": "A",
       "description": "Limiar para operação em 8 fases",
-      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "source": "",
       "conversion": {
         "type": "phase_sum",
         "editable": true,
@@ -2072,9 +2510,13 @@
           "LOOP_1_PHASE5_DELTA",
           "LOOP_1_PHASE6_DELTA",
           "LOOP_1_PHASE7_DELTA"
-        ]
+        ],
+        "max_code": 15
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": 7,
+      "edit_priority": 1
     },
     {
       "name": "loop_2_phase1_thresh",
@@ -2088,16 +2530,20 @@
       "unit": "A",
       "hint": "A",
       "description": "Limiar para operação em 2 fases",
-      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "source": "",
       "conversion": {
         "type": "phase_sum",
         "editable": true,
         "amps": 2,
         "series": [
           "LOOP_2_PHASE1_THRESH"
-        ]
+        ],
+        "max_code": 15
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 2,
+      "phase": 1,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_sw_period",
@@ -2111,7 +2557,7 @@
       "unit": "kHz",
       "hint": "kHz • 200 a 2000",
       "description": "Frequência de comutação",
-      "source": "UtilityModule.SwitchingFrequencyComanche",
+      "source": "",
       "conversion": {
         "type": "frequency",
         "editable": true,
@@ -2119,7 +2565,10 @@
         "min_khz": 200,
         "max_khz": 2000
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_2_sw_period",
@@ -2133,7 +2582,7 @@
       "unit": "kHz",
       "hint": "kHz • 200 a 2000",
       "description": "Frequência de comutação",
-      "source": "UtilityModule.SwitchingFrequencyComanche",
+      "source": "",
       "conversion": {
         "type": "frequency",
         "editable": true,
@@ -2141,7 +2590,10 @@
         "min_khz": 200,
         "max_khz": 2000
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 2,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "pwm_en_ats",
@@ -2155,7 +2607,7 @@
       "unit": "",
       "hint": "Tri-state ou Tri-level ativo",
       "description": "Tipo de driver",
-      "source": "ComanchePowerSaving.UpdateRegister",
+      "source": "",
       "conversion": {
         "editable": true,
         "options": [
@@ -2189,7 +2641,10 @@
           "text": "Tri-level ativo"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "sequence_mode",
@@ -2202,9 +2657,9 @@
       "group": "Compartilhados",
       "unit": "",
       "hint": "juntos, loop 2 depois do 1, ou loop 1 depois do 2",
-      "description": "0 os dois loops partem juntos. 1 o loop 2 segue o loop 1. 2 o loop 1 segue o loop 2. 3 é reservado.",
-      "source": "ComancheRegisterDesigner",
-      "vendor_text": "Sequencing the loop startups. 0 - Both loops start together. 1 - Loop 2 follows loop 1. 2 - Loop 1 follows loop 2. 3 - Reserved.",
+      "description": "0 os dois loops partem juntos. 1 o loop 2 segue o loop 1. 2 o loop 1 segue o loop 2. 3 é reservado",
+      "source": "",
+      "vendor_text": "Sequencing the loop startups. 0 - Both loops start together. 1 - Loop 2 follows loop 1. 2 - Loop 1 follows loop 2. 3 - Reserved",
       "conversion": {
         "editable": true,
         "options": [
@@ -2245,7 +2700,10 @@
           "text": "Reservado"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "application_mode",
@@ -2253,7 +2711,7 @@
       "offset": 1,
       "length": 1,
       "symbol": "APPLICATION_MODE",
-      "source": "UtilityModule.UpdateDeviceMode",
+      "source": "",
       "label": "Modo de aplicação",
       "group": "Compartilhados",
       "unit": "",
@@ -2296,7 +2754,10 @@
           "text": "GPU"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "svi2_mode",
@@ -2304,7 +2765,7 @@
       "offset": 1,
       "length": 1,
       "symbol": "SVI2_MODE",
-      "source": "UtilityModule.UpdateVRMode",
+      "source": "",
       "label": "Protocolo SVI",
       "group": "Compartilhados",
       "unit": "",
@@ -2334,7 +2795,10 @@
           "text": "SVI2"
         }
       ],
-      "widget": "select"
+      "widget": "select",
+      "loop": null,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_slow_iph_max",
@@ -2342,7 +2806,7 @@
       "offset": 3,
       "length": 5,
       "symbol": "LOOP_1_SLOW_IPH_MAX",
-      "source": "ComancheProtection.nudLoop1SlowOCP_ValueChanged",
+      "source": "",
       "label": "Sobrecorrente lenta",
       "group": "Loop 1",
       "unit": "A",
@@ -2356,7 +2820,10 @@
         "max_code": 31,
         "zero": "Desabilitado"
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_2_slow_iph_max",
@@ -2364,7 +2831,7 @@
       "offset": 3,
       "length": 5,
       "symbol": "LOOP_2_SLOW_IPH_MAX",
-      "source": "ComancheProtection.nudLoop1SlowOCP_ValueChanged",
+      "source": "",
       "label": "Sobrecorrente lenta",
       "group": "Loop 2",
       "unit": "A",
@@ -2378,7 +2845,10 @@
         "max_code": 31,
         "zero": "Desabilitado"
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 2,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_1_vboot",
@@ -2391,7 +2861,7 @@
       "unit": "V",
       "hint": "V • efeito na próxima partida",
       "description": "Tensão de partida",
-      "source": "Comanche VBOOT",
+      "source": "",
       "conversion": {
         "type": "vboot",
         "editable": true,
@@ -2405,7 +2875,10 @@
         },
         "below": "Definida pelos pinos de seleção"
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 1,
+      "phase": null,
+      "edit_priority": 1
     },
     {
       "name": "loop_2_vboot",
@@ -2418,7 +2891,7 @@
       "unit": "V",
       "hint": "V • efeito na próxima partida",
       "description": "Tensão de partida",
-      "source": "Comanche VBOOT",
+      "source": "",
       "conversion": {
         "type": "vboot",
         "editable": true,
@@ -2432,7 +2905,227 @@
         },
         "below": "Definida pelos pinos de seleção"
       },
-      "widget": "text"
+      "widget": "text",
+      "loop": 2,
+      "phase": null,
+      "edit_priority": 1
     }
-  ]
+  ],
+  "schema_version": 1,
+  "protocol": {
+    "minimum": 16,
+    "register_access": {
+      "kind": "pmbus_pointer8",
+      "pointer_command": 211,
+      "read_command": 212
+    },
+    "direct_access": "i2c_register8",
+    "mapping": {
+      "command": 214,
+      "enabled_mask": 128,
+      "address_mask": 127,
+      "address_shift": 0
+    },
+    "identity": {
+      "register": 13,
+      "mask": 255,
+      "value": 68
+    },
+    "identity_read": {
+      "bytes": 0
+    },
+    "guards": [
+      {
+        "register": 20,
+        "mask": 32,
+        "value": 32
+      }
+    ]
+  },
+  "capabilities": {
+    "telemetry": true,
+    "dump": true,
+    "parameters": true,
+    "slots": true,
+    "commit": true,
+    "reload": true,
+    "enable": true,
+    "ram_probe": false
+  },
+  "capability_notes": {},
+  "recipes": {
+    "enable": [
+      {
+        "op": "assert",
+        "register": 136,
+        "mask": 255,
+        "value": 136
+      },
+      {
+        "op": "assert",
+        "register": 137,
+        "mask": 255,
+        "value": 136
+      },
+      {
+        "op": "temporary",
+        "register": 136,
+        "mask": 255,
+        "value": 72
+      },
+      {
+        "op": "temporary",
+        "register": 137,
+        "mask": 255,
+        "value": 72
+      }
+    ],
+    "reload": [
+      {
+        "op": "assert",
+        "register": 136,
+        "mask": 255,
+        "value": 136
+      },
+      {
+        "op": "assert",
+        "register": 137,
+        "mask": 255,
+        "value": 136
+      },
+      {
+        "op": "assert",
+        "register": 113,
+        "mask": 255,
+        "value": 32
+      },
+      {
+        "op": "temporary",
+        "register": 136,
+        "mask": 255,
+        "value": 72
+      },
+      {
+        "op": "temporary",
+        "register": 137,
+        "mask": 255,
+        "value": 72
+      },
+      {
+        "op": "temporary",
+        "register": 113,
+        "mask": 255,
+        "value": 36
+      },
+      {
+        "op": "command",
+        "register": 208,
+        "mask": 255,
+        "value": 32,
+        "delay_ms": 50,
+        "poll_mask": 224,
+        "poll_value": 0,
+        "attempts": 11
+      }
+    ],
+    "commit": [
+      {
+        "op": "assert",
+        "register": 136,
+        "mask": 255,
+        "value": 136
+      },
+      {
+        "op": "assert",
+        "register": 137,
+        "mask": 255,
+        "value": 136
+      },
+      {
+        "op": "assert",
+        "register": 113,
+        "mask": 255,
+        "value": 32
+      },
+      {
+        "op": "temporary",
+        "register": 136,
+        "mask": 255,
+        "value": 72
+      },
+      {
+        "op": "temporary",
+        "register": 137,
+        "mask": 255,
+        "value": 72
+      },
+      {
+        "op": "temporary",
+        "register": 113,
+        "mask": 255,
+        "value": 36
+      },
+      {
+        "op": "command",
+        "register": 208,
+        "mask": 255,
+        "value": "$opcode",
+        "delay_ms": 200,
+        "poll_mask": 224,
+        "poll_value": 0,
+        "attempts": 11
+      },
+      {
+        "op": "command",
+        "register": 208,
+        "mask": 255,
+        "value": 32,
+        "delay_ms": 50,
+        "poll_mask": 224,
+        "poll_value": 0,
+        "attempts": 11
+      }
+    ]
+  },
+  "loops": [
+    {
+      "id": "loop1",
+      "label": "Loop 1",
+      "phase_table": "loop1_phases"
+    },
+    {
+      "id": "loop2",
+      "label": "Loop 2",
+      "phase_table": "loop2_phases"
+    }
+  ],
+  "phase_display": {
+    "note": "Limites programados, não telemetria. Distribuição e escalas definidas no perfil do controlador.",
+    "balance_denominator": 64,
+    "gain_length": 4,
+    "loops": [
+      {
+        "id": 1,
+        "label": "Loop 1",
+        "table": "loop1_phases",
+        "fast": "LOOP_1_OCP_THR",
+        "slow": "LOOP_1_SLOW_IPH_MAX",
+        "amps_per_code": 2,
+        "slow_zero": "Desabilitado"
+      },
+      {
+        "id": 2,
+        "label": "Loop 2",
+        "table": "loop2_phases",
+        "fast": "LOOP_2_OCP_THR",
+        "slow": "LOOP_2_SLOW_IPH_MAX",
+        "amps_per_code": 2,
+        "slow_zero": "Desabilitado"
+      }
+    ]
+  },
+  "validation": {
+    "level": "protocol_migration",
+    "notice": "Receita antes utilizada no IR3567B, migrada para protocolo 16; novo executor validado offline."
+  }
 }

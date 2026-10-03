@@ -35,19 +35,7 @@ static void bus_reset(void) {
 }
 #include "probe.h"
 #include "pmbus.h"
-#include "ramtest.h"
-#include "ensoft.h"
-#include "parambyte.h"
-#include "reload.h"
-#include "slotcommit.h"
-static unsigned telemetry_length(unsigned c) {
-    switch(c) {
-        case 0xD6: case 0x19: case 0x20: case 0x78: case 0x7D: case 0x7E: case 0x80: return 1;
-        case 0x79: case 0x88: case 0x89: case 0x8B: case 0x8C:
-        case 0x8D: case 0x8E: case 0x96: case 0x97: return 2;
-        default: return 0;
-    }
-}
+#include "transactions.h"
 static int hex_byte(const char *s, unsigned *out) {
     if (strlen(s) != 2) return 0;
     for (int i=0; i<2; ++i)
@@ -58,43 +46,23 @@ static int hex_byte(const char *s, unsigned *out) {
 }
 static void command(char *line) {
     if (strcmp(line, "HELLO") == 0) {
-        reply("OK INFINEON-PICO 15 RAMTEST");
+        reply("OK INFINEON-PICO 16 GENERIC");
         return;
     }
-    if (strcmp(line,"RAMSET 08 26 FF EF")==0) {ram_set(0xFF,0xEF);return;}
-    if (strcmp(line,"RAMSET 08 26 EF FF")==0) {ram_set(0xEF,0xFF);return;}
-    if (strcmp(line,"RAMHOLD 08 26 FF EF 10000 RESTORE")==0) {ram_test(10000);return;}
-    if (strcmp(line,"RAMTEST 08 26 FF EF RESTORE")==0) {ram_test(0);return;}
-    if (strcmp(line,"ENSOFT 08 88 89 88 48 RESTORE")==0) {en_soft(0);return;}
-    if (strcmp(line,"ENHOLD 08 88 89 88 48 10000 RESTORE")==0) {en_soft(10000);return;}
-    if (strcmp(line,"RELOAD 08 71 20 24 D0 20")==0) {reload_image();return;}
-    if (strcmp(line,"COMMIT 08 USER")==0) {commit_user();return;}
-    if (strncmp(line,"PBYTE ",6)==0) {
-        char rv[3], ev[3], nv[3], tail;
-        unsigned reg, expected, target;
-        if (sscanf(line,"PBYTE 08 %2s %2s %2s %c",rv,ev,nv,&tail)==3 &&
-            hex_byte(rv,&reg) && hex_byte(ev,&expected) && hex_byte(nv,&target)) {
-            pbyte((uint8_t)reg,(uint8_t)expected,(uint8_t)target);
-            return;
+    if (tx_command(line)) return;
+    if (strncmp(line,"GREG ",5)==0) {
+        unsigned a,r,p,c; char tail;
+        if(sscanf(line,"GREG %x %x %x %x %c",&a,&r,&p,&c,&tail)==4 && a>=8 && a<=0x77 && a!=0x0C && r<=255 && p<=255 && c<=255) {
+            register_read(a,r,p,c);return;
         }
-        reply("ERR COMMAND");
-        return;
+        reply("ERR COMMAND");return;
     }
-    if (strncmp(line,"REG ",4)==0) {
-        char av[3], rv[3], tail; unsigned a,r;
-        if (sscanf(line,"REG %2s %2s %c",av,rv,&tail)==2 && hex_byte(av,&a) && hex_byte(rv,&r) &&
-            a>=8 && a<=0x77 && a!=0x0C) { register_read(a,r); return; }
-        reply("ERR COMMAND"); return;
-    }
-    if (strncmp(line,"TEL ",4)==0) {
-        char av[3], cv[3], tail;
-        unsigned a,c;
-        if (sscanf(line,"TEL %2s %2s %c",av,cv,&tail)==2 &&
-            hex_byte(av,&a) && hex_byte(cv,&c) &&
-            a>=8 && a<=0x77 && a!=0x0C && telemetry_length(c)) {
-            pm_read(a,c,true,false,telemetry_length(c)); return;
+    if (strncmp(line,"GPM ",4)==0) {
+        unsigned a,c,n,p,t;char tail;
+        if(sscanf(line,"GPM %x %x %x %x %x %c",&a,&c,&n,&p,&t,&tail)==5 && a>=8 && a<=0x77 && a!=0x0C && c<=255 && n<=32 && p<=1 && t<=1 && !(p && t)) {
+            pm_read(a,c,p!=0,t!=0,n);return;
         }
-        reply("ERR COMMAND"); return;
+        reply("ERR COMMAND");return;
     }
     if (strcmp(line, "LINES") == 0) { observe_lines(); return; }
     // Bounded tokens: PM address command pec stop. Only identification commands.

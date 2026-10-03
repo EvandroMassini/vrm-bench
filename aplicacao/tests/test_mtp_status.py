@@ -2,11 +2,14 @@ import unittest,tempfile
 from app.mtp_status import decode,inspect,remaining
 from test_ramtest import Bench
 class MtpTests(unittest.TestCase):
-    def test_unused(self):self.assertEqual([x['remaining_indicated'] for x in decode(0x3F,0x0F)],[3,9,3])
-    def test_exhausted(self):self.assertEqual([x['remaining_indicated'] for x in decode(0x12,0x08)],[0,0,0])
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
+    def test_unused(self):self.assertEqual([x['remaining_indicated'] for x in decode({0xA6:0x3F,0xA7:0x0F})],[3,9,3])
+    def test_exhausted(self):self.assertEqual([x['remaining_indicated'] for x in decode({0xA6:0x12,0xA7:0x08})],[0,0,0])
     def test_reserved(self):self.assertIsNone(remaining(10,9,15));self.assertIsNone(remaining(4,3,7))
     def test_bit_positions(self):
-        r=decode(0xC9,0xA2);self.assertEqual([x['pointer'] for x in r],[1,2,1])
+        r=decode({0xA6:0xC9,0xA7:0xA2});self.assertEqual([x['pointer'] for x in r],[1,2,1])
     def test_reads_only_two_registers(self):
         class Read(Bench):
             def register_read(self,a,r):

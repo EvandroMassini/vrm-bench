@@ -35,11 +35,11 @@ def convert(symbol, code, values):
     if kind == 'vid_offset':
         signed = code if code < 8 else code - 16
         if signed == -1:
-            return '0 mV (offset codificado; não é VOUT)', 'ComancheOffset: (signed_code + 1) × passo'
+            return '0 mV (offset codificado; não é VOUT)', '(código com sinal + 1) × passo'
         mode = _register(values, spec['require']['address'])
         if mode is not None and mode & spec['require']['mask']:
             return f'{(signed + 1) * spec["step_mv"]:g} mV (offset configurado)', source
-        return 'Passo depende do modo e VR125_MODE_NVM; sem conversão', 'ComancheOffset'
+        return 'Passo depende do modo e VR125_MODE_NVM; sem conversão', ''
     traced = report_text(symbol, code, values)
     if traced:
         return traced

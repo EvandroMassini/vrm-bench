@@ -74,15 +74,37 @@ class InterfaceTests(unittest.TestCase):
         w.run(lambda:None,lambda result:None)
         self.assertIsNone(QApplication.overrideCursor())
         w.poll()
-    def test_addresses_are_independent(self):
+    def test_chart_combo_shows_the_full_metric_name(self):
+        from PySide6.QtWidgets import QStyle, QStyleOptionComboBox
         w=self.w
+        w.resize(1100,700)
+        w.show()
+        self.application.processEvents()
+        w.profile.setCurrentText('IR3567B')
+        self.application.processEvents()
+        titles=[w.chart_metric.itemText(i) for i in range(w.chart_metric.count())]
+        self.assertIn('Tensão de saída', titles)
+        self.assertIn('Corrente de entrada', titles)
+        needed=max(w.chart_metric.fontMetrics().horizontalAdvance(title) for title in titles)
+        option=QStyleOptionComboBox();w.chart_metric.initStyleOption(option)
+        field=w.chart_metric.style().subControlRect(QStyle.ComplexControl.CC_ComboBox, option, QStyle.SubControl.SC_ComboBoxEditField, w.chart_metric)
+        self.assertGreaterEqual(field.width(), needed)
+        self.assertGreaterEqual(w.chart_metric.view().minimumWidth(), needed)
+
+    def test_addresses_follow_the_selected_controller(self):
+        w=self.w
+        w.profile.setCurrentText('IR3567B')
         self.assertEqual(w.target_address(),0x70)
         self.assertEqual(w.target_address(w.direct_address),8)
         w.direct_address.setText('09')
         self.assertEqual(w.target_address(),0x70)
         self.assertEqual(w.address.text(),'70')
+        w.profile.setCurrentText('IR35217')
+        self.assertEqual(set(w.graph_data),{'8B','8D','8C','96','88','89','8E','97'})
+        self.assertEqual(w.address.text(),'70')
 
     def test_graph_keeps_latest_100_samples(self):
+        self.w.profile.setCurrentText('IR3567B')
         for i in range(125):self.w.update_metric(dict(command_hex='8B',value=i,pec_verified=True))
         points=list(self.w.graph_data['8B'])
         self.assertEqual(len(points),100);self.assertEqual(points[0],(26,25));self.assertEqual(points[-1],(125,124))
@@ -111,15 +133,83 @@ class InterfaceTests(unittest.TestCase):
         w.invalidate();self.assertFalse(w.live_values);self.assertFalse(w.proposals)
 
     def test_import_is_proposal_only_and_preserves_live_values(self):
-        w=self.w;w.live_values={0x14:0x22,0x26:255};w.imported_values={0x26:239}
+        w=self.w;w.profile.setCurrentText('IR3567B');w.live_values={0x14:0x22,0x26:255};w.imported_values={0x26:239}
         w.fill_imported()
         self.assertEqual(w.live_values[0x26],255)
         self.assertEqual(w.proposals['LOOP_1_VID_OFFSET'],14)
+        _field,edit,_current=w.editor_widgets['LOOP_1_VID_OFFSET']
+        self.assertEqual(edit.currentData(),14)
+        self.assertNotEqual(edit.property('invalid'),True)
         self.assertIsNone(w.pending);self.assertIsNone(w.link)
+
+    def test_import_shows_unvalidated_value_in_red(self):
+        w=self.w
+        w.profile.setCurrentText('IR3567B')
+        w.live_values={}
+        w.imported_values={0x38:0xFF}
+        w.import_problems=set()
+        w.fill_imported()
+        _field,edit,_current=w.editor_widgets['ADC_UVP']
+        self.assertEqual(edit.currentText(),'Habilitado')
+        self.assertEqual(edit.property('invalid'),True)
+        self.assertEqual(_current.text(),'Não lido')
+        self.assertNotIn('sem correspondência', w.editor_state.text())
+        self.assertNotIn('Ocorrências', w.editor_state.text())
+        self.assertIn('ADC_UVP',w.proposals)
+
+    def test_import_shows_the_code_that_will_be_written(self):
+        w=self.w
+        w.profile.setCurrentText('IR35217')
+        w.live_values={}
+        w.imported_values={0x6B:0x10}
+        w.import_problems=set()
+        w.fill_imported()
+        _field,edit,current=w.editor_widgets['loop_1_fc_p']
+        self.assertEqual(edit.text(),'2')
+        self.assertEqual(current.text(),'Não lido')
+        self.assertEqual(edit.property('invalid'),True)
+        self.assertNotIn('Ocorrências',w.editor_state.text())
+
+    def test_import_keeps_a_value_without_a_validation_rule(self):
+        from app.core import Entry
+        from app.editor_model import prepare_import
+        from app.config_dump import mask_of
+        w=self.w
+        w.profile.setCurrentText('IR3567B')
+        live={0x14:0x22,0x38:0}
+        report=prepare_import([Entry(0x38,0xFF,0x00),Entry(0x99,0x10,0xFF)], live, mask_of)
+        self.assertIn(0x38, report['imported'])
+        self.assertNotIn(0x99, report['imported'])
+        self.assertIn('ADC_UVP', report['proposals'])
+        self.assertIn('ADC_UVP', report['unvalidated'])
+        self.assertEqual(report['issues'], ['38: máscara 00 do arquivo, FF no JSON. Valor mantido.'])
+
+    def test_same_board_dump_does_not_warn_or_mark_matching_choices(self):
+        from app.core import Entry
+        from app.editor_model import prepare_import
+        from app.config_dump import mask_of
+        w=self.w
+        w.profile.setCurrentText('IR3567B')
+        live={0x0E:0x44,0x14:0x22,0x38:0x00}
+        entries=[Entry(address,value,mask_of(address)) for address,value in live.items()]
+        entries.append(Entry(0x10,0x00,mask_of(0x10)))
+        report=prepare_import(entries, live, mask_of)
+        self.assertFalse(report['issues'])
+        self.assertFalse(report['unvalidated'])
+        self.assertIn('LOOP_2_LL_EN', report['proposals'])
+        w.live_values=dict(live)
+        w.imported_values={0x38:0x00}
+        w.import_problems=set()
+        w.fill_imported()
+        _field,edit,current=w.editor_widgets['LOOP_2_LL_EN']
+        self.assertEqual(edit.currentText(),'Desabilitado')
+        self.assertEqual(current.text(),'Desabilitado')
+        self.assertNotEqual(edit.property('invalid'),True)
+        self.assertNotIn('LOOP_2_LL_EN', w.import_problems)
 
     def test_declining_permanent_confirmation_never_commits(self):
         from unittest.mock import Mock
-        w=self.w;w.check_editor_target=Mock();w.slot_read=Mock(return_value=6)
+        w=self.w;w.profile.setCurrentText('IR3567B');w.check_editor_target=Mock();w.slot_read=Mock(return_value=6);w.edit_origin={0x26:0x8F}
         w.run=lambda fn,done,**kw:done(fn())
         with patch('app.slot_commit.preview_changes',return_value=dict(complete=True,difference_count=1,image_token='test')):
             with patch('app.slot_commit.commit_user_slot') as commit,patch('app.dashboard.confirm',return_value=False) as question:
@@ -246,6 +336,10 @@ class InterfaceTests(unittest.TestCase):
               'fields':[{'symbol':'DEMO_FLAG','label':'Sinal do novo CI','group':'Especial','address':16,'offset':0,'length':1,
                          'unit':'','hint':'bit','description':'Campo do JSON novo','widget':'text',
                          'conversion':{'type':'enum','editable':True,'options':[{'code':0,'text':'Não'},{'code':1,'text':'Sim'}]}}]}
+        import copy
+        complete=copy.deepcopy(controller_store.get('IR3567B'))
+        complete.update(demo);complete['parameters']['write_masks']={'16':255};complete['loops']=[]
+        demo=complete
         controller_store._chips['ZZDEMO']=demo
         try:
             w.profile.addItem('ZZDEMO');w.profile.setCurrentText('ZZDEMO');w.poll()

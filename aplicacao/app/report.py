@@ -7,7 +7,18 @@ from .bus_health import check
 from .core import compare
 from .engineering import convert
 from .controller_store import current
-REGISTERS=tuple(current()['report']['registers'])
+def registers():
+    return tuple(int(item) for item in current()['report']['registers'])
+
+class _LiveRegisters:
+    def __iter__(self):
+        return iter(registers())
+    def __len__(self):
+        return len(registers())
+    def __getitem__(self, item):
+        return registers()[item]
+
+REGISTERS = _LiveRegisters()
 
 def analyze(values,reference=()):
     refs={e.address:e for e in reference};rows=[]
@@ -25,19 +36,22 @@ def analyze(values,reference=()):
     return rows
 
 def collect(link,directory,reference=()):
+    chosen = registers()
     r=dict(kind='parameter_report',timestamp_utc=datetime.now(timezone.utc).isoformat(),values={},complete=False,error=None,
-           scope='23 registros ativos; backup parcial, não MTP. Conversões de configuração não são medições.',
-           field_source='PowIRCenter 8712 / ComancheRegisterClass; extração estática, posições MSB. Escalas físicas não validadas.')
+           scope=f'{len(chosen)} registros ativos do CI selecionado; backup parcial, não MTP. Conversões de configuração não são medições.',
+           field_source='Posições com o bit 7 à esquerda. Escalas físicas não validadas.')
     try:
+        from .telemetry import cml_code
         bus=current()['bus'];pmbus=int(bus['pmbus'],16);direct=int(bus['direct'],16)
         check(link,r);r['mapping']=m=map_interface(link,pmbus,bus['speed_khz'])
         if not m['direct_i2c_enabled'] or m['direct_i2c_address_7bit']!=direct:raise ValueError(f"Endereço direto não é {bus['direct']}")
-        r['cml_before']=link.telemetry_read(pmbus,0x7E)
-        for reg in REGISTERS:
+        cml=cml_code()
+        r['cml_before']=link.telemetry_read(pmbus,cml)
+        for reg in chosen:
             value=link.register_read(pmbus,reg)
             if not value['pec_verified']:raise ValueError(f'PEC inválido em {reg:02X}')
             r['values'][f'{reg:02X}']=value
-        r['cml_after']=link.telemetry_read(pmbus,0x7E)
+        r['cml_after']=link.telemetry_read(pmbus,cml)
         r['complete']=True
     except Exception as exc:r['error']=str(exc)
     r['reference_entries']=[dict(address=e.address,value=e.value,mask=e.mask) for e in reference]

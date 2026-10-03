@@ -87,8 +87,8 @@ static void pm_read(unsigned address, unsigned command, bool pec, bool split, un
         sleep_us(half_period_us);
     }
     if (!pm_start() || !pm_send((address<<1)|1,"ERR PMBUS_ADDR_R")) goto done;
-    if (raw_count || command==0x98) {
-        count=raw_count ? raw_count : 1;
+    if (raw_count) {
+        count=raw_count;
     } else {
         if (!pm_octet(&count)) goto done;
         if (count>=1 && count<=32 && !pm_ack(true)) goto done;
@@ -115,15 +115,15 @@ done:
 // Digital observations only, not a voltage measurement or protocol analyzer.
 // D3 writes only the volatile read pointer; D4 reads the selected register.
 // No configurable opcode, D0/D5, unlock, or MTP programming operation.
-static uint8_t pointer_crc(uint8_t a,uint8_t r) {
-    uint8_t bytes[3]={a,0xD3,r},crc=0;
+static uint8_t pointer_crc(uint8_t a,uint8_t r,uint8_t pointer_command) {
+    uint8_t bytes[3]={a,pointer_command,r},crc=0;
     for(unsigned i=0;i<3;++i) {
         crc^=bytes[i];
         for(unsigned j=0;j<8;++j) crc=(uint8_t)((crc<<1)^((crc&0x80)?7:0));
     }
     return crc;
 }
-static void register_read(unsigned address,unsigned reg) {
+static void register_read(unsigned address,unsigned reg,unsigned pointer_command,unsigned read_command) {
     i2c_deinit(i2c0);
     gpio_init(SDA_PIN);gpio_init(SCL_PIN);
     gpio_disable_pulls(SDA_PIN);gpio_disable_pulls(SCL_PIN);
@@ -134,12 +134,12 @@ static void register_read(unsigned address,unsigned reg) {
         sleep_us(10);
     }
     if(!pm_start() || !pm_send(address<<1,"ERR POINTER_ADDRESS") ||
-       !pm_send(0xD3,"ERR POINTER_COMMAND") || !pm_send(reg,"ERR POINTER_REGISTER") ||
-       !pm_send(pointer_crc((uint8_t)(address<<1),(uint8_t)reg),"ERR POINTER_PEC") || !pm_stop()) goto finish_pointer;
+       !pm_send(pointer_command,"ERR POINTER_COMMAND") || !pm_send(reg,"ERR POINTER_REGISTER") ||
+       !pm_send(pointer_crc((uint8_t)(address<<1),(uint8_t)reg,(uint8_t)pointer_command),"ERR POINTER_PEC") || !pm_stop()) goto finish_pointer;
 finish_pointer:
     release_pin(SDA_PIN);release_pin(SCL_PIN);bus_init();
     if(pm_error) {reply(pm_error);return;}
-    pm_read(address,0xD4,true,false,1);
+    pm_read(address,read_command,true,false,1);
 }
 
 static void observe_lines(void) {

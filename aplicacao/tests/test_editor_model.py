@@ -2,7 +2,10 @@ import unittest
 from app import editor_model as m
 
 class EditorTests(unittest.TestCase):
-    def setUp(self):self.values={0x14:0x22,0x17:0xA4,0x18:0xA4,0x26:0xFF,0x22:100,0x23:100,0x31:0,0x32:100}
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
+        self.values={0x14:0x22,0x17:0xA4,0x18:0xA4,0x26:0xFF,0x22:100,0x23:100,0x31:0,0x32:100}
     def test_blank_preserves_every_byte(self):self.assertEqual(m.plan(self.values,{'LOOP_1_VID_OFFSET':' '}),({},[]))
     def test_offset_preserves_other_loop(self):
         changes,_=m.plan(self.values,{'LOOP_1_VID_OFFSET':'-6,25'})
@@ -49,7 +52,6 @@ class EditorTests(unittest.TestCase):
         try:
             field=next(item for item in m.FIELDS if item['symbol']=='ocp_mode')
             self.assertTrue(field['conversion']['editable'])
-            self.assertEqual(field['conversion']['source'], 'UtilityModule.UpdateBufferValue')
             changes, rows=m.plan({72: 0}, {'ocp_mode': 2})
             self.assertEqual(changes, {72: 2})
             self.assertEqual(rows[0]['after'], next(choice['text'] for choice in field['choices'] if choice['code']==2))

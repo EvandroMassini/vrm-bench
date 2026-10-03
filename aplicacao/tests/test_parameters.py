@@ -9,6 +9,9 @@ from app.ramtest import experiment
 from test_ramtest import Bench
 
 class ParametersTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
     def test_loop_order(self):
         self.assertEqual([x['raw_hex'] for x in loops(0xEF)],['E','F'])
         self.assertEqual([x['signed_code'] for x in loops(0xEF)],[-2,-1])

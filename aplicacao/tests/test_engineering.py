@@ -1,6 +1,9 @@
 import unittest
 from app.engineering import convert
 class EngineeringTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
     def test_frequency(self):
         self.assertIn('303.85 kHz',convert('LOOP_1_SW_PERIOD',158,{})[0])
         self.assertIn('400.06 kHz',convert('LOOP_2_SW_PERIOD',120,{})[0])

@@ -26,22 +26,18 @@ def bits(values, address, offset, length):
     return (raw >> (8 - offset - length)) & ((1 << length) - 1)
 
 def phase_index(symbol):
-    marker = symbol.find('PHASE')
-    if marker < 0:
-        return None
-    digits = ''.join(ch for ch in symbol[marker + 5:] if ch.isdigit())
-    return int(digits) if digits else None
+    return field(symbol).get('phase')
 
 def _loop(symbol):
-    return 1 if 'LOOP_1' in symbol else 2 if 'LOOP_2' in symbol else None
+    return field(symbol).get('loop')
 
 def _phases(loop, values):
     where = _tables()['phase_count']
     code = bits(values, where['address'], where['offset'], where['length'])
-    if code is None:
-        return None
-    table = _tables()['loop1_phases' if loop == 1 else 'loop2_phases']
-    return table[code]
+    if code is None:return None
+    item=next(x for x in current()['loops'] if x['id']==f'loop{loop}')
+    return _tables()[item['phase_table']][code]
+
 
 def _phase_code(symbol, values):
     item = field(symbol)
@@ -104,8 +100,8 @@ def numeric(symbol, code, values):
         total = _cumulative(symbol, values)
         return None if total is None else total * spec['amps']
     if kind == 'vid_offset' and _require(spec, values):
-        signed = code if code < 8 else code - 16
-        return (signed + 1) * spec['step_mv']
+        signed = code if code < (1<<(spec['bits']-1)) else code - (1<<spec['bits'])
+        return (signed + spec['bias']) * spec['step_mv']
     if kind == 'vboot' and _require(spec, values) and spec['low'] <= code <= spec['high']:
         return (spec['anchor'] - code) * spec['step']
     if kind == 'frequency':
@@ -157,14 +153,14 @@ def display(symbol, code, values):
         unit = field(symbol).get('unit') or ''
         return f"{_tables()[spec['table']][code]} {unit}".strip()
     if kind == 'linear':
-        return _fmt(numeric(symbol, code, values)).replace('.', ',') + ' V'
+        return _fmt(numeric(symbol, code, values)).replace('.', ',') + ' '+field(symbol).get('unit','')
     if kind == 'phase_sum':
         total = _cumulative(symbol, values)
         if total is None:
             return 'Depende das fases anteriores'
         return f'{total * spec["amps"]} A'
     if kind == 'phase_layout':
-        return f'{_tables()["loop1_phases"][code]} + {_tables()["loop2_phases"][code]} fases'
+        return ' + '.join(str(_tables()[t][code]) for t in spec['tables'])+' fases'
     if kind == 'mode_pair':
         parts = [bits(values, item['address'], item['offset'], item['length']) for item in spec['bits']]
         if any(part is None for part in parts):
@@ -179,7 +175,7 @@ def display(symbol, code, values):
             return 'Conversão não validada'
         if code < spec['low']:
             return spec['below']
-        return _fmt(numeric(symbol, code, values)).replace('.', ',') + ' V'
+        return _fmt(numeric(symbol, code, values)).replace('.', ',') + ' '+field(symbol).get('unit','')
     if kind == 'frequency':
         if not code:
             return 'Indefinido (período zero)'
@@ -260,7 +256,7 @@ def encode(symbol, text, values):
         step = round(spec['step'] * 100000)
         delta = scaled - origin
         if abs(number * 100000 - scaled) > 1e-3 or delta % step or not 0 <= delta // step <= spec['max_code']:
-            raise ValueError('Use 0,80625 a 2,49375 V em passos de 0,1125 V.')
+            raise ValueError(f"Use {spec['origin']} a {spec['origin']+spec['max_code']*spec['step']} em passos de {spec['step']}.")
         return delta // step
     if kind == 'phase_sum':
         total = round(number / spec['amps'])
@@ -274,22 +270,22 @@ def encode(symbol, text, values):
             if previous is None:
                 raise ValueError('Fases anteriores ainda não foram lidas.')
         code = total - previous
-        if not 0 <= code <= 15:
-            raise ValueError('O acréscimo desta fase precisa ficar entre 0 e 30 A, em passos de 2 A.')
+        if not 0 <= code <= spec['max_code']:
+            raise ValueError(f"Acréscimo de 0 a {spec['max_code']*spec['amps']} A em passos de {spec['amps']}.")
         return code
     if kind == 'vid_offset':
-        raw = number / spec['step_mv'] - 1
+        raw = number / spec['step_mv'] - spec['bias']
         if not spec['min_n'] <= raw <= spec['max_n'] or abs(raw - round(raw)) > 1e-7:
-            raise ValueError('Use passos de 6,25 mV, entre −43,75 e +50 mV.')
-        return round(raw) & 15
+            raise ValueError(f"Use passos de {spec['step_mv']} mV dentro dos limites do perfil.")
+        return round(raw) & ((1<<spec['bits'])-1)
     if kind == 'vboot':
         raw = spec['anchor'] - number / spec['step']
         if not spec['low'] <= raw <= spec['high'] or abs(raw - round(raw)) > 1e-7:
-            raise ValueError('Use 0,0125 a 1,55 V em passos de 0,0125 V. Só entra em vigor na partida.')
+            raise ValueError(f"Valor fora do intervalo do perfil ou dos passos de {spec['step']} V.")
         return round(raw)
     if kind == 'frequency':
         if not spec['min_khz'] <= number <= spec['max_khz']:
-            raise ValueError('Frequência permitida: 200 a 2000 kHz.')
+            raise ValueError(f"Frequência permitida: {spec['min_khz']} a {spec['max_khz']} kHz.")
         code = round(1e6 / (number * spec['period_us']))
         actual = 1e6 / (code * spec['period_us'])
         if abs(actual - number) > 0.01:
@@ -320,45 +316,60 @@ def report_text(symbol, code, values):
     text = display(symbol, code, values)
     return None if text is None else (text, source(symbol))
 
-def _balance(gain):
-    if gain is None:
-        return 'Não lido'
-    factor = 64 / (64 - gain)
-    shown = f'{factor:.3f}'.rstrip('0').rstrip('.').replace('.', ',')
-    if gain == 0:
-        return '0 · igual a uma fase sem ganho'
-    return f'{gain} · fator {shown} em relação a uma fase sem ganho'
-
-def _per_phase_ocp(loop, values):
-    fast_field = field(f'LOOP_{loop}_OCP_THR')
-    slow_field = field(f'LOOP_{loop}_SLOW_IPH_MAX')
-    fast = bits(values, fast_field['address'], fast_field['offset'], fast_field['length'])
-    slow = bits(values, slow_field['address'], slow_field['offset'], slow_field['length'])
-    fast_text = 'Não lido' if fast is None else f'{fast * 2} A'
-    slow_text = 'Não lido' if slow is None else ('Desabilitado' if slow == 0 else f'{slow * 2} A')
-    return fast_text, slow_text
-
 def phase_rows(values):
-    n1 = _phases(1, values)
-    n2 = _phases(2, values)
-    rows = []
-    for item in _tables()['phase_gain']:
-        number = item['phase']
-        gain = bits(values, item['address'], item['offset'], 4)
-        if n1 is None:
-            loop, fast, slow = 'Aguardando leitura', '—', '—'
-        elif number <= n1:
-            loop, (fast, slow) = 'Loop 1', _per_phase_ocp(1, values)
-        elif number <= n1 + (n2 or 0):
-            loop, (fast, slow) = 'Loop 2', _per_phase_ocp(2, values)
+    spec=current().get('phase_display') or {}
+    rows=[];distribution=[];end=0
+    for item in spec.get('loops',[]):
+        count=_phases(item['id'],values)
+        if count is None:
+            return [(f"Fase {p['phase']}",'Aguardando leitura','—','—','Não lido') for p in _tables().get('phase_gain',[])]
+        end+=count;distribution.append((end,item))
+    for phase in _tables().get('phase_gain',[]):
+        number=phase['phase'];gain=bits(values,phase['address'],phase['offset'],spec['gain_length'])
+        loop=next((item for end,item in distribution if number<=end),None)
+        texts=[]
+        for key in ('fast','slow'):
+            f=field(loop[key]) if loop else None
+            code=bits(values,f['address'],f['offset'],f['length']) if f else None
+            texts.append('—' if code is None else loop.get('slow_zero','0 A') if key=='slow' and code==0 else f"{code*loop['amps_per_code']} A")
+        denominator=spec['balance_denominator']
+        if gain is None:
+            balance='Não lido'
+        elif gain == 0:
+            balance='0 · igual'
         else:
-            loop, fast, slow = 'Fora da configuração', '—', '—'
-        rows.append((f'Fase {number}', loop, fast, slow, _balance(gain)))
+            factor=f'{denominator/(denominator-gain):.3f}'.replace('.', ',')
+            balance=f'{gain} · fator {factor}'
+        rows.append((f'Fase {number}',loop['label'] if loop else 'Fora da configuração',*texts,balance))
     return rows
 
-_chip = current()
-LOOP1_PHASES = tuple(_chip['tables']['loop1_phases'])
-LOOP2_PHASES = tuple(_chip['tables']['loop2_phases'])
-RELATIVE_MV = tuple(_chip['tables']['relative_mv'])
-PHASE_BITS = {item['symbol']: (item['address'], item['offset'], item['length'])
-              for item in _chip['fields'] if item['conversion']['type'] == 'phase_sum'}
+def _phase_tables():
+    return current()['tables']
+
+class _LiveSeq:
+    def __init__(self, key):
+        self.key = key
+    def _data(self):
+        return tuple(_phase_tables().get(self.key) or [])
+    def __iter__(self):
+        return iter(self._data())
+    def __getitem__(self, item):
+        return self._data()[item]
+    def __len__(self):
+        return len(self._data())
+
+class _LivePhaseBits(dict):
+    def _data(self):
+        return {item['symbol']: (item['address'], item['offset'], item['length'])
+                for item in current()['fields'] if item['conversion']['type'] == 'phase_sum'}
+    def __contains__(self, key):
+        return key in self._data()
+    def __getitem__(self, key):
+        return self._data()[key]
+    def __iter__(self):
+        return iter(self._data())
+
+LOOP1_PHASES = _LiveSeq('loop1_phases')
+LOOP2_PHASES = _LiveSeq('loop2_phases')
+RELATIVE_MV = _LiveSeq('relative_mv')
+PHASE_BITS = _LivePhaseBits()

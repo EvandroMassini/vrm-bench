@@ -3,6 +3,7 @@ import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
+from .controller_store import current
 from .bus_health import check
 from .registers import map_interface
 
@@ -44,16 +45,25 @@ def save_backup(data,directory):
             path=_next_name(path)
 
 def snapshot(link,directory):
+    chip = current()
+    regs = [int(item) for item in (chip.get('parameters') or {}).get('snapshot_registers') or []]
+    if not regs:
+        raise ValueError('O JSON selecionado não descreve os registradores desta leitura.')
+    bus = chip['bus']
+    pmbus, direct = int(bus['pmbus'], 16), int(bus['direct'], 16)
+    shown = ', '.join(f'{item:02X}' for item in regs)
     r=dict(kind='offset_snapshot',timestamp_utc=datetime.now(timezone.utc).isoformat(),
-           scope='Somente registros ativos 14 e 26; não é backup completo nem MTP.',values={})
+           scope=f'Somente os registros {shown} do CI selecionado; não é backup completo nem MTP.',values={})
     check(link,r)
-    r['mapping']=m=map_interface(link,0x70,100)
-    if not m['direct_i2c_enabled'] or m['direct_i2c_address_7bit']!=8:raise ValueError('Alvo incompatível com I²C 08.')
-    for reg in (0x14,0x26):
-        v=link.register_read(0x70,reg)
+    r['mapping']=m=map_interface(link,pmbus,bus['speed_khz'])
+    if not m['direct_i2c_enabled'] or m['direct_i2c_address_7bit']!=direct:raise ValueError(f'Alvo incompatível com I²C {direct:02X}.')
+    for reg in regs:
+        v=link.register_read(pmbus,reg)
         if not v['pec_verified']:raise ValueError('PEC inválido; backup não confirmado.')
         r['values'][f'{reg:02X}']=v
-    r['loops']=loops(r['values']['26']['value'])
+    vid = (chip.get('parameters') or {}).get('vid_loops_register')
+    if vid is not None:
+        r['loops']=loops(r['values'][f'{int(vid):02X}']['value'])
     r['backup_path']=save_backup(r,directory)
     return r
 

@@ -5,6 +5,9 @@ from app.registers import parse_registers,decode_register,map_interface,capture
 from test_transport import FakeSerial
 
 class RegisterTests(unittest.TestCase):
+    def setUp(self):
+        from app.controller_store import select
+        select('IR3567B')
     def test_parser(self):
         self.assertEqual(parse_registers('24,25 0x24'),[0x24,0x25])
         for value in ('','00-FF','100','GG'):
@@ -14,11 +17,11 @@ class RegisterTests(unittest.TestCase):
         self.assertEqual(decode_register(f'OK BLOCK 01 B0 {check:02X}',0x70)['value'],0xB0)
         with self.assertRaises(ValueError):decode_register('OK BLOCK 01 B0 00',0x70)
     def test_wire(self):
-        p=Pico.__new__(Pico);p.version=6
+        p=Pico.__new__(Pico);p.version=16
         check=crc8(bytes.fromhex('E0 D4 E1 B0'))
         p.serial=FakeSerial(f'OK BLOCK 01 B0 {check:02X}\n'.encode())
         p.register_read(0x70,0x24)
-        self.assertEqual(p.serial.sent,[b'REG 70 24\n'])
+        self.assertEqual(p.serial.sent,[b'GREG 70 24 D3 D4\n'])
     def test_mapping(self):
         r=map_interface(Simulated([]),0x30,100)
         self.assertTrue(r['direct_i2c_enabled'])

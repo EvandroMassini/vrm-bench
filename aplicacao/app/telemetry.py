@@ -19,6 +19,9 @@ class _LiveCommands(dict):
 
 FIELDS = _LiveCommands()
 
+def cml_code():
+    return current()['telemetry']['cml_command']
+
 def signed(value,bits):
     return value-(1<<bits) if value&(1<<(bits-1)) else value
 
@@ -35,7 +38,7 @@ def decode_fixed(response,address,command):
     received=int(m[3],16)
     if received!=expected:
         raise ValueError(f'PEC inválido em {command:02X}: recebido {received:02X}, esperado {expected:02X}')
-    return dict(raw_hex=m[2],value_raw=int.from_bytes(data,'little'),pec_verified=True,
+    return dict(raw_hex=m[2],value_raw=int.from_bytes(data,next(c['byteorder'] for c in current()['telemetry']['commands'] if c['code']==command)),pec_verified=True,
                 pec_received=f'{received:02X}',pec_expected=f'{expected:02X}')
 
 def output_offset_nibble(config,offset):
@@ -56,15 +59,20 @@ def vout_pin(linear,nibble):
 
 def interpret(command,result,vout_mode,offset_nibble=None):
     word=result['value_raw']
-    if FIELDS[command][2]=='hex':return dict(display=f'0x{word:0{FIELDS[command][1]*2}X}',unit='',value=None)
-    if command==0x8B:
+    spec=next(c for c in current()['telemetry']['commands'] if c['code']==command)
+    if spec['decoder']=='raw':return dict(display=f'0x{word:0{FIELDS[command][1]*2}X}',unit='',value=None)
+    vout=current()['telemetry'].get('vout') or {}
+    if spec['decoder']=='linear16':
         if vout_mode is None or vout_mode>>5!=0:
             return dict(display='RAW — VOUT_MODE ausente/não Linear',unit='',value=None)
         value=vout_pin(word*2.0**signed(vout_mode&31,5),offset_nibble)
-        fmt='Linear16 mais 56,25 mV no ajuste 0; nos demais, mais 50 mV' if offset_nibble is not None else 'Linear16; expoente lido em VOUT_MODE'
-    else:
+        fmt=vout.get('tooltip') or 'Linear16; expoente lido em VOUT_MODE'
+    elif spec['decoder']=='linear11':
         value=linear11(word)
         fmt='Linear11; referência de família, escala ainda não validada na placa'
+    else:
+        raw=signed(word,spec['bytes']*8) if spec['decoder']=='signed' else word
+        value=raw*spec.get('scale',1)+spec.get('offset',0);fmt=spec['decoder']
     return dict(display=f'{value:.6g} {FIELDS[command][2]}',unit=FIELDS[command][2],value=value,format=fmt)
 
 def collect(link,address,khz,cycles,cancelled,progress,interval=1.0):
@@ -73,39 +81,42 @@ def collect(link,address,khz,cycles,cancelled,progress,interval=1.0):
     report=dict(kind='telemetry',address_7bit=address,khz_nominal=khz,pec=True,
                 timestamp_utc=datetime.now(timezone.utc).isoformat(),samples=[],complete=False,
                 cancelled=False,error=None,loop='Saída atualmente endereçada; PAGE não alterada',
-                interpretation='Referência IR3565B/família; confirmar escala com medição externa')
+                interpretation='Escala de família; confirmar com medição externa')
     unsupported=set()
     try:
         link.set_speed(khz)
-        chip=current();identity=chip['identity'];vout=chip['telemetry']['vout']
+        chip=current();identity=chip['identity'];vout=chip['telemetry'].get('vout') or {}
         model=link.pm_read(address,identity['model_command'],True,False)
         report['model_read']=model
         if model['raw_hex']!=identity['model_hex'] or not model['pec_verified']:
             raise ValueError(f"Modelo diferente de {identity['model_hex']}h ou sem PEC válido; coleta não iniciada")
         report['identity']=identity['label']
         nibble=None
-        try:
-            config=link.register_read(address,vout['config_register']);offset=link.register_read(address,vout['offset_register'])
-            if config.get('pec_verified') and offset.get('pec_verified'):
-                nibble=output_offset_nibble(config['value'],offset['value'])
-                report['output_adjust_hex']=f"{offset['value']:02X}"
-        except Exception:
-            nibble=None
+        if 'config_register' in vout and 'offset_register' in vout:
+            try:
+                config=link.register_read(address,vout['config_register']);offset=link.register_read(address,vout['offset_register'])
+                if config.get('pec_verified') and offset.get('pec_verified'):
+                    nibble=output_offset_nibble(config['value'],offset['value'])
+                    report['output_adjust_hex']=f"{offset['value']:02X}"
+            except Exception:
+                nibble=None
+        vout_command=vout.get('command')
+        body=[c['code'] for c in current()['telemetry']['commands'] if c.get('collect',True)]
+        sequence=[cml_code()]+[c for c in body if c!=cml_code()]+[cml_code()]
         for index in range(cycles):
             if cancelled.is_set():report['cancelled']=True;return report
             sample=dict(index=index+1,timestamp_utc=datetime.now(timezone.utc).isoformat(),readings=[])
             report['samples'].append(sample)
             mode=None
-            # Read CML first and again last: unsupported requests can latch communication faults.
-            for command in [0x7E]+[c for c in FIELDS if c!=0xD6]+[0x7E]:
+            for command in sequence:
                 if cancelled.is_set():report['cancelled']=True;return report
                 if command in unsupported:continue
                 row=dict(command_hex=f'{command:02X}',name=FIELDS[command][0],sample=index+1,
                          timestamp_utc=datetime.now(timezone.utc).isoformat())
                 try:
                     data=link.telemetry_read(address,command)
-                    if command==0x20:mode=data['value_raw']
-                    row.update(status='response',**data,**interpret(command,data,mode,nibble if command==0x8B else None))
+                    if command==current()['telemetry']['mode_command']:mode=data['value_raw']
+                    row.update(status='response',**data,**interpret(command,data,mode,nibble if command==vout_command else None))
                 except TargetRejected as exc:
                     row.update(status='unsupported',error=str(exc),display=str(exc))
                     if str(exc)!='ERR PMBUS_COMMAND':

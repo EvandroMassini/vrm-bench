@@ -15,10 +15,12 @@ def parse_registers(text):
 
 def decode_register(response,address):
     m=re.fullmatch(r'OK BLOCK 01 ([0-9A-F]{2}) ([0-9A-F]{2})',response)
-    if not m:raise ValueError('Resposta D4 malformada')
+    if not m:raise ValueError('Resposta de registrador malformada')
     value,received=int(m[1],16),int(m[2],16)
-    expected=crc8(bytes([address<<1,0xD4,address<<1|1,value]))
-    if received!=expected:raise ValueError(f'PEC D4 inválido: {received:02X}, esperado {expected:02X}')
+    from .controller_store import current
+    command=current()['protocol']['register_access']['read_command']
+    expected=crc8(bytes([address<<1,command,address<<1|1,value]))
+    if received!=expected:raise ValueError(f'PEC {command:02X} inválido: {received:02X}, esperado {expected:02X}')
     return dict(value=value,raw_hex=m[1],pec_verified=True,pec_received=m[2],pec_expected=f'{expected:02X}')
 
 def identify(link,address,khz):
@@ -32,12 +34,14 @@ def identify(link,address,khz):
 
 def map_interface(link,address,khz):
     model=identify(link,address,khz)
-    raw=link.telemetry_read(address,0xD6)
+    from .controller_store import current
+    spec=current()['protocol']['mapping']
+    raw=link.telemetry_read(address,spec['command'])
     value=raw['value_raw']
     return dict(kind='interface_mapping',timestamp_utc=datetime.now(timezone.utc).isoformat(),
                 pmbus_address_7bit=address,model_read=model,d6=raw,
-                direct_i2c_enabled=bool(value&128),direct_i2c_address_7bit=value&127,
-                limitation='Interpretação D6 pela referência da família; não escreve endereço nem testa a interface direta')
+                direct_i2c_enabled=bool(value&spec['enabled_mask']),direct_i2c_address_7bit=(value&spec['address_mask'])>>spec['address_shift'],
+                limitation=f'Interpretação do comando {spec["command"]:02X} pelo perfil; não escreve endereço nem testa a interface direta')
 
 def capture(link,address,khz,registers,reference,cancelled,progress):
     if not reference.strip():raise ValueError('Informe a origem da lista de registradores.')
@@ -46,14 +50,18 @@ def capture(link,address,khz,registers,reference,cancelled,progress):
                 pmbus_address_7bit=address,khz_nominal=khz,reference=reference,
                 requested_registers=registers,passes=[[],[]],comparison=[],complete=False,cancelled=False,error=None,
                 scope='Registradores ativos selecionados; não é backup completo nem leitura direta da MTP',
-                mechanism='SET_POINTER D3 com PEC + GET_POINTER D4 com PEC; altera apenas ponteiro de leitura')
+                mechanism='Leitura do registrador pelo comando declarado no perfil; altera apenas o ponteiro de leitura')
     try:
         from .catalog import metadata
+        from .telemetry import cml_code
+        from .controller_store import current
+        access=current()['protocol']['register_access']
+        result['mechanism']=f'SET_POINTER {access["pointer_command"]:02X} com PEC + leitura {access["read_command"]:02X} com PEC; altera apenas o ponteiro de leitura'
         result['register_catalog']=metadata(registers)
         from .bus_health import check,explanation
         check(link,result)
         result['model_read']=identify(link,address,khz)
-        result['cml_before']=link.telemetry_read(address,0x7E)
+        result['cml_before']=link.telemetry_read(address,cml_code())
         for pass_index in range(2):
             for reg in registers:
                 if cancelled.is_set():result['cancelled']=True;return result
@@ -66,7 +74,7 @@ def capture(link,address,khz,registers,reference,cancelled,progress):
                 result['passes'][pass_index].append(row);progress(row)
         for a,b in zip(*result['passes']):
             result['comparison'].append(dict(register_hex=a['register_hex'],first=a['raw_hex'],second=b['raw_hex'],equal=a['value']==b['value']))
-        result['cml_after']=link.telemetry_read(address,0x7E)
+        result['cml_after']=link.telemetry_read(address,cml_code())
         result['complete']=True
         result['all_equal']=all(row['equal'] for row in result['comparison'])
     except Exception as exc:

@@ -1,6 +1,6 @@
 import unittest
 from pathlib import Path
-from app.core import Entry, parse_config, compare, read_plan, region
+from app.core import Entry, parse_config, parse_dump_tolerant, compare, read_plan, region
 from app.transport import Simulated
 
 class CoreTests(unittest.TestCase):
@@ -23,9 +23,16 @@ class CoreTests(unittest.TestCase):
             with self.subTest(text=text), self.assertRaises(ValueError):
                 parse_config(text)
 
+    def test_tolerant_import_keeps_matching_bytes_and_counts_conflicts(self):
+        entries, issues = parse_dump_tolerant("24 10 FF\n24 11 FF\n25 20 00\nGG\n25 20 00\n")
+        self.assertEqual([(item.address, item.value) for item in entries], [(0x25, 0x20)])
+        self.assertGreaterEqual(len(issues), 3)
+        kept = {item.address: item.value for item in entries}
+        self.assertNotIn(0x24, kept)
+
     def test_no_cross_family_assumptions(self):
-        with self.assertRaises(ValueError):
-            read_plan("IR3567B", [Entry(0x24,0,255)])
+        self.assertEqual(read_plan("IR3567B", [Entry(0x24,0,255)]), [0x24])
+        self.assertEqual(read_plan("IR3567B", [Entry(0x96,0,255)]), [])
         self.assertEqual(region("IR3567B",0x24), "USER")
         self.assertEqual(region("IR3567B",0x70), "MFR")
         self.assertEqual(region("IR3567B",0x0A), "TRIM")
