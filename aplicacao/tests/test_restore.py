@@ -20,9 +20,11 @@ class FakeLink:
     def __init__(self, memory):
         self.memory = dict(memory)
         self.lines = []
+        self.reads = []
         self._steps = []
 
     def register_read(self, address, register):
+        self.reads.append((address, register))
         return dict(value=self.memory.get(register, 0), pec_verified=True)
 
     def request(self, line):
@@ -92,6 +94,7 @@ class RestoreTests(unittest.TestCase):
         link = FakeLink({228: 0x80, 229: 0})
         report = program(link, plan)
         self.assertTrue(report['ok'], report['error'])
+        self.assertEqual(link.reads[0], (0x70, 228))
         self.assertEqual(report['written'], [228, 20])
         self.assertEqual(link.memory[228], 0)
         self.assertEqual(link.memory[20], 0x20)

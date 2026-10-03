@@ -1,4 +1,4 @@
-VRM Bench 0.52 — experimento de bancada
+VRM Bench 0.53 — experimento de bancada
 
 Isto é um experimento. Não é um produto e não é uma ferramenta oficial da Infineon.
 
@@ -9,12 +9,12 @@ Faça os testes em sucata. Não use numa placa que precise continuar funcionando
 Como usar este pacote
 1. Extraia o zip inteiro. Não execute o programa de dentro do arquivo compactado.
 2. Mantenha na mesma pasta o VRMBench.exe, a pasta _internal e a pasta controllers.
-3. Grave no Pico o arquivo infineon-pico-v0.50.uf2 (protocolo 16), com o botão BOOTSEL, antes de ligar a sucata. Ele responde OK INFINEON-PICO 16 GENERIC.
+3. Grave no Pico o arquivo infineon-pico-v0.50.uf2 (protocolo 16), com o botão BOOTSEL, antes de ligar a sucata. Ele responde OK INFINEON-PICO 16 GENERIC. Este firmware é o mesmo da versão 0.52.
 4. GP4 é SDA, GP5 é SCL, GND é comum. Pull-up em 3,3 V. Não ligue 5 V no Pico e não alimente a placa pelo Pico.
 5. No programa, conecte o Pico, escolha o CI certo, marque o barramento conferido e só então leia. Se a leitura não bater com o JSON, ela para.
 6. Gravar em RAM já altera a placa energizada.
-7. Gravar dump completo copia a área USER de um dump deste programa e gasta um slot. O trim e a área de fabricante do CI ligado permanecem os dele.
+7. Gravar dump completo copia a área USER de um dump deste programa e gasta um slot. O desbloqueio é lido no endereço PMBus do JSON (70 no IR3567B). O trim e a área de fabricante do CI ligado permanecem os dele.
 8. Gravar somente parâmetros modificados gasta um slot só com o que já foi alterado e aplicado em RAM.
 9. Meça a saída com um multímetro.
 
-O pacote anterior (VRMBench 0.48 e firmware 0.26, protocolo 15) continua na pasta release. O texto completo está no README do repositório.
+O pacote anterior (VRMBench 0.52, e também o 0.48 com firmware 0.26) continua na pasta release. O texto completo está no README do repositório.

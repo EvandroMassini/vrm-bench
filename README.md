@@ -14,9 +14,9 @@ Gravar a memória permanente do controlador de tensão pode impedir a placa de l
 
 O VRM Bench é um painel em Windows que conversa, por um Raspberry Pi Pico, com o controlador de tensão (VRM) de uma placa de vídeo usada como sucata. O Pico faz o papel de adaptador USB para o barramento I²C / PMBus. O programa no PC lê telemetria, lê o mapa de registradores e, em alguns campos, grava um byte na RAM do CI. A gravação permanente existe no programa e **gasta um slot** da memória do circuito. Ela não deve ser o primeiro teste.
 
-A versão publicada agora é a **0.52** do programa e o firmware **0.50** do Pico (protocolo 16). Os dois precisam andar juntos. Um Pico com firmware antigo responde outro número de protocolo e o programa recusa a gravação. O par anterior, programa 0.48 e firmware 0.26 (protocolo 15), continua na pasta `release/`.
+A versão publicada agora é a **0.53** do programa e o firmware **0.50** do Pico (protocolo 16). Os dois precisam andar juntos. Um Pico com firmware antigo responde outro número de protocolo e o programa recusa a gravação. O firmware não mudou na 0.53: a correção está no programa. A 0.52 lia o desbloqueio de **Gravar dump completo** no endereço I²C direto e parava num CI novo antes de gravar o slot. Os pacotes 0.52 e 0.48 continuam na pasta `release/`.
 
-![Tela principal do VRM Bench 0.52, na aba Parâmetros e gravação](docs/tela-principal.png)
+![Tela principal do VRM Bench 0.53, na aba Parâmetros e gravação](docs/tela-principal.png)
 
 Controladores descritos hoje:
 
@@ -35,7 +35,7 @@ O programa não identifica o CI sozinho no momento em que a porta serial abre. A
 | `firmware/` | Código do Pico que implementa o protocolo 16 |
 | `release/` | Pacote pronto: zip do programa para Windows e o UF2 do Pico |
 
-Quem só vai usar a bancada, sem compilar, precisa de `release/infineon-pico-v0.50.uf2` e de `release/VRMBench-0.52-windows.zip`.
+Quem só vai usar a bancada, sem compilar, precisa de `release/infineon-pico-v0.50.uf2` e de `release/VRMBench-0.53-windows.zip`.
 
 ## O que você precisa
 
@@ -73,7 +73,7 @@ Os endereços que o programa espera, para os JSON atuais, são PMBus **70** e I�
 
 ## Instalar o firmware no Pico
 
-O arquivo é `release/infineon-pico-v0.50.uf2`. Ele responde `OK INFINEON-PICO 16 GENERIC` ao comando `HELLO`. Protocolo 16 é o que a versão 0.52 exige para gravar um byte em RAM, copiar a área USER de um dump, recarregar a imagem permanente e gravar um slot.
+O arquivo é `release/infineon-pico-v0.50.uf2`. Ele responde `OK INFINEON-PICO 16 GENERIC` ao comando `HELLO`. Protocolo 16 é o que a versão 0.53 exige para gravar um byte em RAM, copiar a área USER de um dump, recarregar a imagem permanente e gravar um slot. O mesmo UF2 já acompanhava a 0.52.
 
 Faça isto **sem** a placa de vídeo ligada no barramento.
 
@@ -97,7 +97,7 @@ Identificar só lista Picos na USB. Não lê o controlador da placa de vídeo.
 
 ## Usar o programa empacotado
 
-1. Extraia `release/VRMBench-0.52-windows.zip` para uma pasta sua, por exemplo `C:\VRMBench`. Extraia o zip inteiro. Não execute o programa de dentro do zip.
+1. Extraia `release/VRMBench-0.53-windows.zip` para uma pasta sua, por exemplo `C:\VRMBench`. Extraia o zip inteiro. Não execute o programa de dentro do zip.
 2. A pasta extraída precisa conter, lado a lado:
    - `VRMBench.exe`
    - a pasta `_internal` (bibliotecas do programa; sem ela o exe não abre)
@@ -212,7 +212,7 @@ Tensão de partida, quando o campo existir e for aceito, só passa a valer depoi
 
 Há dois botões. Os dois gastam **um slot USER** e interrompem as saídas. **Consultar slots** mostra quantos ainda restam. Com zero, a gravação é recusada.
 
-**Gravar dump completo** pede um dump feito por este programa. Copia a área USER inteira desse arquivo para o CI ligado e grava um slot. O trim e a área de fabricante do CI ligado permanecem os dele. É o caminho para colocar, num CI do mesmo modelo, a configuração da placa de onde saiu o dump. O CI precisa se identificar como o modelo escolhido e ainda ter um slot livre.
+**Gravar dump completo** pede um dump feito por este programa. Copia a área USER inteira desse arquivo para o CI ligado e grava um slot. O trim e a área de fabricante do CI ligado permanecem os dele. É o caminho para colocar, num CI do mesmo modelo, a configuração da placa de onde saiu o dump. O CI precisa se identificar como o modelo escolhido e ainda ter um slot livre. A leitura dos registradores de desbloqueio usa o endereço PMBus do JSON. No IR3567B é o 70, o mesmo da leitura do mapa.
 
 **Gravar somente parâmetros modificados** grava só o que já foi alterado e aplicado em RAM. Não lê um arquivo.
 

@@ -84,10 +84,13 @@ def write_byte(link, address, expected, target):
 def program(link, plan):
     """Unlock, then write differing USER bytes. Does not consume a slot."""
     report = dict(ok=False, written=[], error=None)
-    direct = int(current()['bus']['direct'], 16)
+    pmbus = int(current()['bus']['pmbus'], 16)
     try:
         for register, value in plan['unlock']:
-            seen = link.register_read(direct, register)
+            try:
+                seen = link.register_read(pmbus, register)
+            except ValueError as exc:
+                raise ValueError(f'Registrador {register:02X}: {exc}') from exc
             if not seen.get('pec_verified'):
                 raise ValueError(f'Leitura de {register:02X} sem integridade')
             if seen['value'] == value:

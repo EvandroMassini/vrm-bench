@@ -35,7 +35,7 @@ from .dashboard import DashboardMixin, TELEMETRY_NAMES
 class Window(DashboardMixin,QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("VRM Bench 0.52 — painel de controle")
+        self.setWindowTitle("VRM Bench 0.53 — painel de controle")
         self.setWindowIcon(application_icon())
         from .parameters import set_overwrite_prompt
         set_overwrite_prompt(self.ask_overwrite)

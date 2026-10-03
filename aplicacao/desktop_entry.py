@@ -59,7 +59,7 @@ def run():
     app.processEvents()
     assert w.grab().save(str(report.with_suffix(".png")))
     assert not w.windowIcon().isNull()
-    report.write_text(json.dumps(dict(ok=True,version="0.52",hardware_access=False)),encoding="utf-8")
+    report.write_text(json.dumps(dict(ok=True,version="0.53",hardware_access=False)),encoding="utf-8")
     w.close()
     app.quit()
 

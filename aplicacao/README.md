@@ -1,3 +1,9 @@
+# Novidades da versão 0.53
+
+Gravar dump completo lê o desbloqueio pelo endereço PMBus do JSON. No IR3567B isso é o 70, o mesmo da leitura que devolve os slots e a temperatura. A 0.52 pedia esses registradores no endereço I²C direto 08. Um CI novo respondia o mapa, mas a gravação parava no PEC do comando D4 e o slot não era queimado. O firmware continua o 0.50, protocolo 16.
+
+---
+
 # Novidades da versão 0.52
 
 Gravar dump completo, na aba Parâmetros e gravação, copia a área USER de um dump para o controlador ligado e grava um slot. O trim e a área de fabricante deste CI permanecem os dele. Gravar somente parâmetros modificados grava só o que já foi alterado e aplicado em RAM. No IR3567B, os registradores 228 e 229 são zerados antes da cópia completa, como no ProgramComanche. O CI novo precisa responder como o modelo selecionado.
