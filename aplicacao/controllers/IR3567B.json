@@ -1,0 +1,2438 @@
+{
+  "id": "IR3567B",
+  "operations": [
+    "telemetry",
+    "parameters",
+    "dump",
+    "maintenance"
+  ],
+  "identity": {
+    "model_command": 154,
+    "model_hex": "44",
+    "product_id": 68,
+    "label": "Compatível com IR3567B: código 44h, referência de família"
+  },
+  "bus": {
+    "pmbus": "70",
+    "direct": "08",
+    "register": "0D",
+    "speed_khz": 100
+  },
+  "regions": [
+    {
+      "start": 0,
+      "end": 15,
+      "name": "TRIM"
+    },
+    {
+      "start": 16,
+      "end": 103,
+      "name": "USER"
+    },
+    {
+      "start": 104,
+      "end": 144,
+      "name": "MFR"
+    },
+    {
+      "start": 183,
+      "end": 183,
+      "name": "B7"
+    }
+  ],
+  "region_else": "Fora do TXT curto",
+  "tables": {
+    "loop1_phases": [
+      8,
+      7,
+      6,
+      5,
+      4,
+      3,
+      2,
+      1,
+      0,
+      6,
+      5,
+      4,
+      3,
+      2,
+      1,
+      6,
+      5,
+      4,
+      3,
+      2,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "loop2_phases": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "relative_mv": [
+      150,
+      200,
+      250,
+      325,
+      350,
+      375,
+      400,
+      500
+    ],
+    "phase_count": {
+      "address": 20,
+      "offset": 3,
+      "length": 5
+    },
+    "phase_gain": [
+      {
+        "phase": 1,
+        "address": 30,
+        "offset": 0
+      },
+      {
+        "phase": 2,
+        "address": 30,
+        "offset": 4
+      },
+      {
+        "phase": 3,
+        "address": 31,
+        "offset": 0
+      },
+      {
+        "phase": 4,
+        "address": 31,
+        "offset": 4
+      },
+      {
+        "phase": 5,
+        "address": 32,
+        "offset": 0
+      },
+      {
+        "phase": 6,
+        "address": 32,
+        "offset": 4
+      },
+      {
+        "phase": 7,
+        "address": 33,
+        "offset": 0
+      },
+      {
+        "phase": 8,
+        "address": 33,
+        "offset": 4
+      }
+    ]
+  },
+  "telemetry": {
+    "commands": [
+      {
+        "code": 214,
+        "name": "I2C_ADDRESS_CONTROL",
+        "bytes": 1,
+        "unit": "hex"
+      },
+      {
+        "code": 25,
+        "name": "CAPABILITY",
+        "bytes": 1,
+        "unit": "hex"
+      },
+      {
+        "code": 32,
+        "name": "VOUT_MODE",
+        "bytes": 1,
+        "unit": "hex"
+      },
+      {
+        "code": 120,
+        "name": "STATUS_BYTE",
+        "bytes": 1,
+        "unit": "hex"
+      },
+      {
+        "code": 121,
+        "name": "STATUS_WORD",
+        "bytes": 2,
+        "unit": "hex"
+      },
+      {
+        "code": 125,
+        "name": "STATUS_TEMPERATURE",
+        "bytes": 1,
+        "unit": "hex"
+      },
+      {
+        "code": 126,
+        "name": "STATUS_CML",
+        "bytes": 1,
+        "unit": "hex"
+      },
+      {
+        "code": 128,
+        "name": "STATUS_MFR_SPECIFIC",
+        "bytes": 1,
+        "unit": "hex"
+      },
+      {
+        "code": 136,
+        "name": "READ_VIN",
+        "bytes": 2,
+        "unit": "V"
+      },
+      {
+        "code": 137,
+        "name": "READ_IIN",
+        "bytes": 2,
+        "unit": "A"
+      },
+      {
+        "code": 139,
+        "name": "READ_VOUT",
+        "bytes": 2,
+        "unit": "V"
+      },
+      {
+        "code": 140,
+        "name": "READ_IOUT",
+        "bytes": 2,
+        "unit": "A"
+      },
+      {
+        "code": 141,
+        "name": "READ_TEMPERATURE_1",
+        "bytes": 2,
+        "unit": "°C"
+      },
+      {
+        "code": 142,
+        "name": "READ_TEMPERATURE_2",
+        "bytes": 2,
+        "unit": "°C"
+      },
+      {
+        "code": 150,
+        "name": "READ_POUT",
+        "bytes": 2,
+        "unit": "W"
+      },
+      {
+        "code": 151,
+        "name": "READ_PIN",
+        "bytes": 2,
+        "unit": "W"
+      }
+    ],
+    "metrics": [
+      {
+        "key": "88",
+        "title": "Tensão de entrada",
+        "unit": "V"
+      },
+      {
+        "key": "8B",
+        "title": "Tensão de saída",
+        "unit": "V"
+      },
+      {
+        "key": "89",
+        "title": "Corrente de entrada",
+        "unit": "A"
+      },
+      {
+        "key": "8C",
+        "title": "Corrente de saída",
+        "unit": "A"
+      },
+      {
+        "key": "8D",
+        "title": "Temperatura 1",
+        "unit": "°C"
+      },
+      {
+        "key": "8E",
+        "title": "Temperatura 2",
+        "unit": "°C"
+      },
+      {
+        "key": "97",
+        "title": "Potência de entrada",
+        "unit": "W"
+      },
+      {
+        "key": "96",
+        "title": "Potência de saída",
+        "unit": "W"
+      }
+    ],
+    "metric_grid": [
+      [
+        0,
+        0,
+        "88"
+      ],
+      [
+        0,
+        1,
+        "89"
+      ],
+      [
+        0,
+        2,
+        "8D"
+      ],
+      [
+        0,
+        3,
+        "97"
+      ],
+      [
+        1,
+        0,
+        "8B"
+      ],
+      [
+        1,
+        1,
+        "8C"
+      ],
+      [
+        1,
+        2,
+        "8E"
+      ],
+      [
+        1,
+        3,
+        "96"
+      ]
+    ],
+    "names": {
+      "19": "Recursos do controlador",
+      "20": "Formato da tensão",
+      "78": "Estado geral",
+      "79": "Estado das saídas",
+      "7D": "Estado térmico",
+      "7E": "Estado da comunicação",
+      "80": "Estado do fabricante",
+      "88": "Tensão de entrada",
+      "89": "Corrente de entrada",
+      "8B": "Tensão de saída",
+      "8C": "Corrente de saída",
+      "8D": "Temperatura 1",
+      "8E": "Temperatura 2",
+      "96": "Potência de saída",
+      "97": "Potência de entrada"
+    },
+    "vout": {
+      "command": 139,
+      "config_register": 20,
+      "offset_register": 38,
+      "amd_mask": 32,
+      "zero_nibble": 15,
+      "zero_volts": 0.05625,
+      "other_volts": 0.05,
+      "tooltip": "Linear16 mais 50 mV. Com o ajuste em 0 mV, mais 56,25 mV."
+    }
+  },
+  "dump": {
+    "addresses": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      183
+    ],
+    "mask_overrides": {
+      "79": 0,
+      "80": 0,
+      "113": 251,
+      "140": 0,
+      "183": 0
+    },
+    "trim_end": 15,
+    "trim_mask": 0,
+    "trim_special": {
+      "10": 225
+    },
+    "blocked_write": [
+      113,
+      136,
+      137,
+      208
+    ],
+    "baseline_sha256": "439811c3a9ca6d43d3d721fc26f7d4029d427761f01597950918107c3a9e7b58",
+    "baseline_file": "PcYes_IR3567B.txt"
+  },
+  "parameters": {
+    "writable_start": 16,
+    "writable_end": 144,
+    "blocked": [
+      20,
+      79,
+      80,
+      113,
+      136,
+      137,
+      140,
+      183,
+      208
+    ],
+    "direct_address": 8
+  },
+  "verify": {
+    "user_start": 16,
+    "user_end": 103,
+    "mfr_start": 104,
+    "mfr_end": 144,
+    "masks": {
+      "79": 0,
+      "80": 0,
+      "112": 251
+    }
+  },
+  "catalog": {
+    "source": "https://gist.github.com/jfoster/9efd669c245820b0e8e755d15943984c",
+    "authority": "Implementação comunitária; não é mapa oficial integral",
+    "interpretation": "Valores brutos. Funções indicadas pela referência; não validadas fisicamente nesta placa.",
+    "initial": "0D 22 23 24 25",
+    "labels": {
+      "13": "Identificação",
+      "26": "DPC L1 P1/P2",
+      "27": "DPC L1 P3/P4",
+      "28": "DPC L1 P5/P6",
+      "29": "DPC L2 P1/P2",
+      "34": "Frequência L1",
+      "35": "Frequência L2",
+      "36": "Load-line L1",
+      "37": "Load-line L2",
+      "49": "Proteção térmica",
+      "50": "VR_Hot",
+      "51": "OCP L1 / OVP",
+      "52": "OCP L2 / UVP",
+      "56": "LLC",
+      "61": "Vmax L1/L2",
+      "141": "Offset de tensão L1",
+      "142": "Offset de tensão L2"
+    }
+  },
+  "report": {
+    "registers": [
+      13,
+      20,
+      26,
+      27,
+      28,
+      29,
+      34,
+      35,
+      36,
+      37,
+      38,
+      49,
+      50,
+      51,
+      52,
+      56,
+      61,
+      77,
+      78,
+      97,
+      99,
+      141,
+      142
+    ]
+  },
+  "fields": [
+    {
+      "name": "product_id_otp",
+      "address": 13,
+      "offset": 0,
+      "length": 8,
+      "symbol": "PRODUCT_ID_OTP",
+      "il": "IL_01F2",
+      "label": "Identificação do controlador",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "identificação",
+      "description": "Identificação do controlador",
+      "source": "ComancheRegisterClass",
+      "conversion": {
+        "type": "match",
+        "editable": false,
+        "code": 68,
+        "text": "IR3567B",
+        "else": "Identificação não confirmada"
+      },
+      "widget": "text"
+    },
+    {
+      "name": "amd_cmd_mode",
+      "address": 56,
+      "offset": 4,
+      "length": 1,
+      "symbol": "AMD_CMD_MODE",
+      "il": "IL_0989",
+      "label": "Modo de comandos AMD",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "habilitado ou desabilitado",
+      "description": "Comando AMD. Código 0 desabilita. Qualquer outro código habilita.",
+      "source": "UtilityModule.DecodeRegisterValueComanche",
+      "vendor_text": "DecodeRegisterValueComanche: code 0 = Disable, otherwise Enable.",
+      "conversion": {
+        "editable": true,
+        "options": [
+          {
+            "code": 0,
+            "text": "Desabilitado"
+          },
+          {
+            "code": 1,
+            "text": "Habilitado"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "Desabilitado"
+        },
+        {
+          "code": 1,
+          "text": "Habilitado"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "device_personalities",
+      "address": 20,
+      "offset": 2,
+      "length": 1,
+      "symbol": "DEVICE_PERSONALITIES",
+      "il": "IL_0B86",
+      "label": "Personalidade do controlador",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "Intel, MPOL, AMD ou GPU",
+      "description": "Personalidade do controlador",
+      "source": "UtilityModule.UpdateDeviceMode",
+      "conversion": {
+        "type": "mode_pair",
+        "editable": false,
+        "bits": [
+          {
+            "address": 20,
+            "offset": 2,
+            "length": 1
+          },
+          {
+            "address": 97,
+            "offset": 1,
+            "length": 1
+          }
+        ],
+        "map": {
+          "0,0": "Intel",
+          "0,1": "MPOL",
+          "1,0": "AMD",
+          "1,1": "GPU"
+        },
+        "missing": "Depende da personalidade e do modo de aplicação"
+      },
+      "choices": [
+        {
+          "text": "Intel"
+        },
+        {
+          "text": "MPOL"
+        },
+        {
+          "text": "AMD"
+        },
+        {
+          "text": "GPU"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "loops_configuration",
+      "address": 20,
+      "offset": 3,
+      "length": 5,
+      "symbol": "LOOPS_CONFIGURATION",
+      "il": "IL_0B9A",
+      "label": "Configuração das saídas",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "fases por loop",
+      "description": "Configuração das saídas",
+      "source": "UtilityModule.UpdatePhaseCount",
+      "conversion": {
+        "type": "phase_layout",
+        "editable": false
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "8 + 0 fases"
+        },
+        {
+          "code": 1,
+          "text": "7 + 0 fases"
+        },
+        {
+          "code": 2,
+          "text": "6 + 0 fases"
+        },
+        {
+          "code": 3,
+          "text": "5 + 0 fases"
+        },
+        {
+          "code": 4,
+          "text": "4 + 0 fases"
+        },
+        {
+          "code": 5,
+          "text": "3 + 0 fases"
+        },
+        {
+          "code": 6,
+          "text": "2 + 0 fases"
+        },
+        {
+          "code": 7,
+          "text": "1 + 0 fases"
+        },
+        {
+          "code": 8,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 9,
+          "text": "6 + 1 fases"
+        },
+        {
+          "code": 10,
+          "text": "5 + 1 fases"
+        },
+        {
+          "code": 11,
+          "text": "4 + 1 fases"
+        },
+        {
+          "code": 12,
+          "text": "3 + 1 fases"
+        },
+        {
+          "code": 13,
+          "text": "2 + 1 fases"
+        },
+        {
+          "code": 14,
+          "text": "1 + 1 fases"
+        },
+        {
+          "code": 15,
+          "text": "6 + 2 fases"
+        },
+        {
+          "code": 16,
+          "text": "5 + 2 fases"
+        },
+        {
+          "code": 17,
+          "text": "4 + 2 fases"
+        },
+        {
+          "code": 18,
+          "text": "3 + 2 fases"
+        },
+        {
+          "code": 19,
+          "text": "2 + 2 fases"
+        },
+        {
+          "code": 20,
+          "text": "1 + 2 fases"
+        },
+        {
+          "code": 21,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 22,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 23,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 24,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 25,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 26,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 27,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 28,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 29,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 30,
+          "text": "0 + 0 fases"
+        },
+        {
+          "code": 31,
+          "text": "0 + 0 fases"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "intel_offset_1",
+      "address": 141,
+      "offset": 0,
+      "length": 8,
+      "symbol": "INTEL_OFFSET_1",
+      "il": "IL_1115",
+      "label": "Ajuste de tensão Intel",
+      "group": "Loop 1",
+      "unit": "passos VID",
+      "hint": "passos VID • −128 a 127",
+      "description": "Ajuste em passos de VID do Intel VR12. O bit 7 é o sinal. A faixa é −128 a +127.",
+      "source": "ComancheRegisterDesigner",
+      "vendor_text": "Sets the offset in VID steps for Intel VR12. Bit 7 is the sign bit.",
+      "conversion": {
+        "type": "signed",
+        "editable": true,
+        "bits": 8
+      },
+      "widget": "text"
+    },
+    {
+      "name": "intel_offset_2",
+      "address": 142,
+      "offset": 0,
+      "length": 8,
+      "symbol": "INTEL_OFFSET_2",
+      "il": "IL_112C",
+      "label": "Ajuste de tensão Intel",
+      "group": "Loop 2",
+      "unit": "passos VID",
+      "hint": "passos VID • −128 a 127",
+      "description": "Ajuste em passos de VID do Intel VR12. O bit 7 é o sinal. A faixa é −128 a +127.",
+      "source": "ComancheRegisterDesigner",
+      "vendor_text": "Sets the offset in VID steps for Intel VR12. Bit 7 is the sign bit.",
+      "conversion": {
+        "type": "signed",
+        "editable": true,
+        "bits": 8
+      },
+      "widget": "text"
+    },
+    {
+      "name": "reduce_dvid_speed_by_10x",
+      "address": 49,
+      "offset": 0,
+      "length": 1,
+      "symbol": "REDUCE_DVID_SPEED_BY_10X",
+      "il": "IL_1972",
+      "label": "Redução da velocidade de transição",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "habilitado ou desabilitado",
+      "description": "Com o bit ligado, a taxa de DVID, lenta ou rápida, fica dividida por 10.",
+      "source": "ComancheRegisterDesigner",
+      "vendor_text": "If the bit is set, reduce the DVID rate (slow or fast) by a factor of 10.",
+      "conversion": {
+        "editable": true,
+        "options": [
+          {
+            "code": 0,
+            "text": "Desabilitado"
+          },
+          {
+            "code": 1,
+            "text": "Habilitado"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "Desabilitado"
+        },
+        {
+          "code": 1,
+          "text": "Habilitado"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "ocp_mode",
+      "address": 50,
+      "offset": 6,
+      "length": 2,
+      "symbol": "OCP_MODE",
+      "il": "IL_1AC9",
+      "label": "Modo da proteção de corrente",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "desliga na hora, após tentativas ou hiccup",
+      "description": "0 desliga imediatamente. 1 desliga após 7 tentativas. 2 faz hiccup contínuo. 3 desliga após 2 tentativas na partida e desliga imediatamente em operação.",
+      "source": "ComancheRegisterDesigner",
+      "vendor_text": "0=shutdown immediately, 1=shutdown after 7 tries, 2=continuous hiccup, 3=shutdown after 2 tries at startup/shutdown immediately during operation.",
+      "conversion": {
+        "editable": true,
+        "options": [
+          {
+            "code": 0,
+            "text": "Desliga imediatamente"
+          },
+          {
+            "code": 1,
+            "text": "Desliga após 7 tentativas"
+          },
+          {
+            "code": 2,
+            "text": "Hiccup contínuo"
+          },
+          {
+            "code": 3,
+            "text": "Duas tentativas na partida; desliga em operação"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "Desliga imediatamente"
+        },
+        {
+          "code": 1,
+          "text": "Desliga após 7 tentativas"
+        },
+        {
+          "code": 2,
+          "text": "Hiccup contínuo"
+        },
+        {
+          "code": 3,
+          "text": "Duas tentativas na partida; desliga em operação"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "loop_1_ocp_thr",
+      "address": 51,
+      "offset": 3,
+      "length": 5,
+      "symbol": "LOOP_1_OCP_THR",
+      "il": "IL_1ADD",
+      "label": "Sobrecorrente rápida",
+      "group": "Loop 1",
+      "unit": "A",
+      "hint": "A",
+      "description": "Sobrecorrente rápida",
+      "source": "ComancheProtection.nudLoop1FastOCP_ValueChanged",
+      "conversion": {
+        "type": "phase_current",
+        "editable": true,
+        "loop": 1,
+        "amps_per_code": 2,
+        "max_code": 31
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_2_ocp_thr",
+      "address": 52,
+      "offset": 3,
+      "length": 5,
+      "symbol": "LOOP_2_OCP_THR",
+      "il": "IL_1AF1",
+      "label": "Sobrecorrente rápida",
+      "group": "Loop 2",
+      "unit": "A",
+      "hint": "A",
+      "description": "Sobrecorrente rápida",
+      "source": "ComancheProtection.nudLoop1FastOCP_ValueChanged",
+      "conversion": {
+        "type": "phase_current",
+        "editable": true,
+        "loop": 2,
+        "amps_per_code": 2,
+        "max_code": 31
+      },
+      "widget": "text"
+    },
+    {
+      "name": "otp_thresh",
+      "address": 49,
+      "offset": 3,
+      "length": 5,
+      "symbol": "OTP_THRESH",
+      "il": "IL_1B41",
+      "label": "Limite de desligamento térmico",
+      "group": "Compartilhados",
+      "unit": "°C",
+      "hint": "°C",
+      "description": "Limite de desligamento térmico",
+      "source": "ComancheProtection.trkOvtpThresh_Scroll",
+      "conversion": {
+        "type": "temperature_plus",
+        "editable": true,
+        "add": 64,
+        "from": {
+          "address": 50,
+          "shift": 2,
+          "mask": 63
+        }
+      },
+      "widget": "text"
+    },
+    {
+      "name": "temp_max",
+      "address": 50,
+      "offset": 0,
+      "length": 6,
+      "symbol": "TEMP_MAX",
+      "il": "IL_1B55",
+      "label": "Limite de alerta térmico",
+      "group": "Compartilhados",
+      "unit": "°C",
+      "hint": "°C",
+      "description": "Limite de alerta térmico",
+      "source": "ComancheProtection.trkTempMax_Scroll",
+      "conversion": {
+        "type": "temperature",
+        "editable": true,
+        "base": 64
+      },
+      "widget": "text"
+    },
+    {
+      "name": "ovp_thresh",
+      "address": 51,
+      "offset": 0,
+      "length": 3,
+      "symbol": "OVP_THRESH",
+      "il": "IL_1B7D",
+      "label": "Limite de sobretensão",
+      "group": "Compartilhados",
+      "unit": "mV",
+      "hint": "mV",
+      "description": "Limite de sobretensão",
+      "source": "ComancheProtection.InitializeComponent",
+      "conversion": {
+        "type": "lookup",
+        "editable": true,
+        "table": "relative_mv"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "150 mV"
+        },
+        {
+          "code": 1,
+          "text": "200 mV"
+        },
+        {
+          "code": 2,
+          "text": "250 mV"
+        },
+        {
+          "code": 3,
+          "text": "325 mV"
+        },
+        {
+          "code": 4,
+          "text": "350 mV"
+        },
+        {
+          "code": 5,
+          "text": "375 mV"
+        },
+        {
+          "code": 6,
+          "text": "400 mV"
+        },
+        {
+          "code": 7,
+          "text": "500 mV"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "uvp_thresh",
+      "address": 52,
+      "offset": 0,
+      "length": 3,
+      "symbol": "UVP_THRESH",
+      "il": "IL_1BF5",
+      "label": "Limite de subtensão",
+      "group": "Compartilhados",
+      "unit": "mV",
+      "hint": "mV",
+      "description": "Limite de subtensão",
+      "source": "ComancheProtection.InitializeComponent",
+      "conversion": {
+        "type": "lookup",
+        "editable": true,
+        "table": "relative_mv"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "150 mV"
+        },
+        {
+          "code": 1,
+          "text": "200 mV"
+        },
+        {
+          "code": 2,
+          "text": "250 mV"
+        },
+        {
+          "code": 3,
+          "text": "325 mV"
+        },
+        {
+          "code": 4,
+          "text": "350 mV"
+        },
+        {
+          "code": 5,
+          "text": "375 mV"
+        },
+        {
+          "code": 6,
+          "text": "400 mV"
+        },
+        {
+          "code": 7,
+          "text": "500 mV"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "adc_uvp",
+      "address": 56,
+      "offset": 5,
+      "length": 1,
+      "symbol": "ADC_UVP",
+      "il": "IL_1C09",
+      "label": "Proteção de subtensão pelo conversor",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "habilitado ou desabilitado",
+      "description": "Proteção de subtensão pelo conversor",
+      "source": "",
+      "conversion": {
+        "editable": false,
+        "options": [
+          {
+            "code": 0,
+            "text": "Desabilitado"
+          },
+          {
+            "code": 1,
+            "text": "Habilitado"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "Desabilitado"
+        },
+        {
+          "code": 1,
+          "text": "Habilitado"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "auto_alert",
+      "address": 56,
+      "offset": 3,
+      "length": 1,
+      "symbol": "AUTO_ALERT",
+      "il": "IL_1EA6",
+      "label": "Alerta automático",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "habilitado ou desabilitado",
+      "description": "Alerta automático",
+      "source": "",
+      "conversion": {
+        "editable": false,
+        "options": [
+          {
+            "code": 0,
+            "text": "Desabilitado"
+          },
+          {
+            "code": 1,
+            "text": "Habilitado"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "Desabilitado"
+        },
+        {
+          "code": 1,
+          "text": "Habilitado"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "loop_1_ll_reg",
+      "address": 36,
+      "offset": 0,
+      "length": 8,
+      "symbol": "LOOP_1_LL_REG",
+      "il": "IL_204B",
+      "label": "Compensação de carga",
+      "group": "Loop 1",
+      "unit": "mΩ",
+      "hint": "mΩ",
+      "description": "Compensação de carga",
+      "source": "ComancheLoadlineNTCUC.RestoreSettings",
+      "conversion": {
+        "type": "loadline",
+        "editable": true,
+        "loop": 1,
+        "step_mohm": 25
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_2_ll_reg",
+      "address": 37,
+      "offset": 0,
+      "length": 8,
+      "symbol": "LOOP_2_LL_REG",
+      "il": "IL_205F",
+      "label": "Compensação de carga",
+      "group": "Loop 2",
+      "unit": "mΩ",
+      "hint": "mΩ",
+      "description": "Compensação de carga",
+      "source": "ComancheLoadlineNTCUC.RestoreSettings",
+      "conversion": {
+        "type": "loadline",
+        "editable": true,
+        "loop": 2,
+        "step_mohm": 50
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_1_ll_en",
+      "address": 56,
+      "offset": 0,
+      "length": 1,
+      "symbol": "LOOP_1_LL_EN",
+      "il": "IL_2073",
+      "label": "Compensação de carga habilitada",
+      "group": "Loop 1",
+      "unit": "",
+      "hint": "habilitado ou desabilitado",
+      "description": "Compensação de carga habilitada",
+      "source": "",
+      "conversion": {
+        "editable": false,
+        "options": [
+          {
+            "code": 0,
+            "text": "Desabilitado"
+          },
+          {
+            "code": 1,
+            "text": "Habilitado"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "Desabilitado"
+        },
+        {
+          "code": 1,
+          "text": "Habilitado"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "loop_2_ll_en",
+      "address": 56,
+      "offset": 1,
+      "length": 1,
+      "symbol": "LOOP_2_LL_EN",
+      "il": "IL_2087",
+      "label": "Compensação de carga habilitada",
+      "group": "Loop 2",
+      "unit": "",
+      "hint": "habilitado ou desabilitado",
+      "description": "Compensação de carga habilitada",
+      "source": "",
+      "conversion": {
+        "editable": false,
+        "options": [
+          {
+            "code": 0,
+            "text": "Desabilitado"
+          },
+          {
+            "code": 1,
+            "text": "Habilitado"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "Desabilitado"
+        },
+        {
+          "code": 1,
+          "text": "Habilitado"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "loop_1_vmax",
+      "address": 61,
+      "offset": 0,
+      "length": 4,
+      "symbol": "LOOP_1_VMAX",
+      "il": "IL_20E0",
+      "label": "Tensão máxima",
+      "group": "Loop 1",
+      "unit": "V",
+      "hint": "V",
+      "description": "Tensão máxima",
+      "source": "ComancheGamer.GamerFrom_Load ramo SVI",
+      "conversion": {
+        "type": "linear",
+        "editable": true,
+        "origin": 0.80625,
+        "step": 0.1125,
+        "max_code": 15
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "0,80625 V"
+        },
+        {
+          "code": 1,
+          "text": "0,91875 V"
+        },
+        {
+          "code": 2,
+          "text": "1,03125 V"
+        },
+        {
+          "code": 3,
+          "text": "1,14375 V"
+        },
+        {
+          "code": 4,
+          "text": "1,25625 V"
+        },
+        {
+          "code": 5,
+          "text": "1,36875 V"
+        },
+        {
+          "code": 6,
+          "text": "1,48125 V"
+        },
+        {
+          "code": 7,
+          "text": "1,59375 V"
+        },
+        {
+          "code": 8,
+          "text": "1,70625 V"
+        },
+        {
+          "code": 9,
+          "text": "1,81875 V"
+        },
+        {
+          "code": 10,
+          "text": "1,93125 V"
+        },
+        {
+          "code": 11,
+          "text": "2,04375 V"
+        },
+        {
+          "code": 12,
+          "text": "2,15625 V"
+        },
+        {
+          "code": 13,
+          "text": "2,26875 V"
+        },
+        {
+          "code": 14,
+          "text": "2,38125 V"
+        },
+        {
+          "code": 15,
+          "text": "2,49375 V"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "loop_2_vmax",
+      "address": 61,
+      "offset": 4,
+      "length": 4,
+      "symbol": "LOOP_2_VMAX",
+      "il": "IL_20F4",
+      "label": "Tensão máxima",
+      "group": "Loop 2",
+      "unit": "V",
+      "hint": "V",
+      "description": "Tensão máxima",
+      "source": "ComancheGamer.GamerFrom_Load ramo SVI",
+      "conversion": {
+        "type": "linear",
+        "editable": true,
+        "origin": 0.80625,
+        "step": 0.1125,
+        "max_code": 15
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "0,80625 V"
+        },
+        {
+          "code": 1,
+          "text": "0,91875 V"
+        },
+        {
+          "code": 2,
+          "text": "1,03125 V"
+        },
+        {
+          "code": 3,
+          "text": "1,14375 V"
+        },
+        {
+          "code": 4,
+          "text": "1,25625 V"
+        },
+        {
+          "code": 5,
+          "text": "1,36875 V"
+        },
+        {
+          "code": 6,
+          "text": "1,48125 V"
+        },
+        {
+          "code": 7,
+          "text": "1,59375 V"
+        },
+        {
+          "code": 8,
+          "text": "1,70625 V"
+        },
+        {
+          "code": 9,
+          "text": "1,81875 V"
+        },
+        {
+          "code": 10,
+          "text": "1,93125 V"
+        },
+        {
+          "code": 11,
+          "text": "2,04375 V"
+        },
+        {
+          "code": 12,
+          "text": "2,15625 V"
+        },
+        {
+          "code": 13,
+          "text": "2,26875 V"
+        },
+        {
+          "code": 14,
+          "text": "2,38125 V"
+        },
+        {
+          "code": 15,
+          "text": "2,49375 V"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "loop_1_vid_offset",
+      "address": 38,
+      "offset": 0,
+      "length": 4,
+      "symbol": "LOOP_1_VID_OFFSET",
+      "il": "IL_220F",
+      "label": "Ajuste de tensão",
+      "group": "Loop 1",
+      "unit": "mV",
+      "hint": "mV • passo 6,25",
+      "description": "Ajuste de tensão",
+      "source": "ComancheOffset: ramo AMD, passo 6,25 mV",
+      "conversion": {
+        "type": "vid_offset",
+        "editable": true,
+        "step_mv": 6.25,
+        "min_n": -8,
+        "max_n": 7,
+        "require": {
+          "address": 20,
+          "mask": 32
+        }
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "6,25 mV"
+        },
+        {
+          "code": 1,
+          "text": "12,5 mV"
+        },
+        {
+          "code": 2,
+          "text": "18,75 mV"
+        },
+        {
+          "code": 3,
+          "text": "25 mV"
+        },
+        {
+          "code": 4,
+          "text": "31,25 mV"
+        },
+        {
+          "code": 5,
+          "text": "37,5 mV"
+        },
+        {
+          "code": 6,
+          "text": "43,75 mV"
+        },
+        {
+          "code": 7,
+          "text": "50 mV"
+        },
+        {
+          "code": 8,
+          "text": "-43,75 mV"
+        },
+        {
+          "code": 9,
+          "text": "-37,5 mV"
+        },
+        {
+          "code": 10,
+          "text": "-31,25 mV"
+        },
+        {
+          "code": 11,
+          "text": "-25 mV"
+        },
+        {
+          "code": 12,
+          "text": "-18,75 mV"
+        },
+        {
+          "code": 13,
+          "text": "-12,5 mV"
+        },
+        {
+          "code": 14,
+          "text": "-6,25 mV"
+        },
+        {
+          "code": 15,
+          "text": "0 mV"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "loop_2_vid_offset",
+      "address": 38,
+      "offset": 4,
+      "length": 4,
+      "symbol": "LOOP_2_VID_OFFSET",
+      "il": "IL_2223",
+      "label": "Ajuste de tensão",
+      "group": "Loop 2",
+      "unit": "mV",
+      "hint": "mV • passo 6,25",
+      "description": "Ajuste de tensão",
+      "source": "ComancheOffset: ramo AMD, passo 6,25 mV",
+      "conversion": {
+        "type": "vid_offset",
+        "editable": true,
+        "step_mv": 6.25,
+        "min_n": -8,
+        "max_n": 7,
+        "require": {
+          "address": 20,
+          "mask": 32
+        }
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "6,25 mV"
+        },
+        {
+          "code": 1,
+          "text": "12,5 mV"
+        },
+        {
+          "code": 2,
+          "text": "18,75 mV"
+        },
+        {
+          "code": 3,
+          "text": "25 mV"
+        },
+        {
+          "code": 4,
+          "text": "31,25 mV"
+        },
+        {
+          "code": 5,
+          "text": "37,5 mV"
+        },
+        {
+          "code": 6,
+          "text": "43,75 mV"
+        },
+        {
+          "code": 7,
+          "text": "50 mV"
+        },
+        {
+          "code": 8,
+          "text": "-43,75 mV"
+        },
+        {
+          "code": 9,
+          "text": "-37,5 mV"
+        },
+        {
+          "code": 10,
+          "text": "-31,25 mV"
+        },
+        {
+          "code": 11,
+          "text": "-25 mV"
+        },
+        {
+          "code": 12,
+          "text": "-18,75 mV"
+        },
+        {
+          "code": 13,
+          "text": "-12,5 mV"
+        },
+        {
+          "code": 14,
+          "text": "-6,25 mV"
+        },
+        {
+          "code": 15,
+          "text": "0 mV"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "vr_hot_mode",
+      "address": 49,
+      "offset": 1,
+      "length": 2,
+      "symbol": "VR_HOT_MODE",
+      "il": "IL_24DF",
+      "label": "Modo do alerta térmico",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "VR_HOT, Icritical ou OCP",
+      "description": "Função do pino VR_HOT. 0 só VR_HOT. 1 VR_HOT ou Icritical. 2 VR_HOT ou OCP. 3 só Icritical.",
+      "source": "ComancheRegisterDesigner",
+      "vendor_text": "The functionality of the VR_HOT pin. 0 - vr_hot. 1 - vr_hot or Icritical. 2 - vr_hot or OCP. 3 - Icritical.",
+      "conversion": {
+        "editable": true,
+        "options": [
+          {
+            "code": 0,
+            "text": "VR_HOT"
+          },
+          {
+            "code": 1,
+            "text": "VR_HOT ou Icritical"
+          },
+          {
+            "code": 2,
+            "text": "VR_HOT ou OCP"
+          },
+          {
+            "code": 3,
+            "text": "Icritical"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "VR_HOT"
+        },
+        {
+          "code": 1,
+          "text": "VR_HOT ou Icritical"
+        },
+        {
+          "code": 2,
+          "text": "VR_HOT ou OCP"
+        },
+        {
+          "code": 3,
+          "text": "Icritical"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "pad_output_mode",
+      "address": 56,
+      "offset": 6,
+      "length": 2,
+      "symbol": "PAD_OUTPUT_MODE",
+      "il": "IL_24F3",
+      "label": "Modo dos pinos de saída",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "open drain, NMOS ou PMOS",
+      "description": "Modo elétrico dos pinos. 00 open drain. 01 NMOS. 10 PMOS.",
+      "source": "ComancheRegisterDesigner",
+      "vendor_text": "The PAD output mode. 00 - open drain. 10 - PMOS. 01 - NMOS.",
+      "conversion": {
+        "editable": true,
+        "options": [
+          {
+            "code": 0,
+            "text": "Open drain"
+          },
+          {
+            "code": 1,
+            "text": "NMOS"
+          },
+          {
+            "code": 2,
+            "text": "PMOS"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "Open drain"
+        },
+        {
+          "code": 1,
+          "text": "NMOS"
+        },
+        {
+          "code": 2,
+          "text": "PMOS"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "loop_1_phase1_thresh",
+      "address": 26,
+      "offset": 0,
+      "length": 4,
+      "symbol": "LOOP_1_PHASE1_THRESH",
+      "il": "IL_252F",
+      "label": "Limiar para operação em 2 fases",
+      "group": "Loop 1",
+      "unit": "A",
+      "hint": "A",
+      "description": "Limiar para operação em 2 fases",
+      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "conversion": {
+        "type": "phase_sum",
+        "editable": true,
+        "amps": 2,
+        "series": [
+          "LOOP_1_PHASE1_THRESH",
+          "LOOP_1_PHASE2_DELTA",
+          "LOOP_1_PHASE3_DELTA",
+          "LOOP_1_PHASE4_DELTA",
+          "LOOP_1_PHASE5_DELTA",
+          "LOOP_1_PHASE6_DELTA",
+          "LOOP_1_PHASE7_DELTA"
+        ]
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_1_phase2_delta",
+      "address": 26,
+      "offset": 4,
+      "length": 4,
+      "symbol": "LOOP_1_PHASE2_DELTA",
+      "il": "IL_2543",
+      "label": "Limiar para operação em 3 fases",
+      "group": "Loop 1",
+      "unit": "A",
+      "hint": "A",
+      "description": "Limiar para operação em 3 fases",
+      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "conversion": {
+        "type": "phase_sum",
+        "editable": true,
+        "amps": 2,
+        "series": [
+          "LOOP_1_PHASE1_THRESH",
+          "LOOP_1_PHASE2_DELTA",
+          "LOOP_1_PHASE3_DELTA",
+          "LOOP_1_PHASE4_DELTA",
+          "LOOP_1_PHASE5_DELTA",
+          "LOOP_1_PHASE6_DELTA",
+          "LOOP_1_PHASE7_DELTA"
+        ]
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_1_phase3_delta",
+      "address": 27,
+      "offset": 0,
+      "length": 4,
+      "symbol": "LOOP_1_PHASE3_DELTA",
+      "il": "IL_2557",
+      "label": "Limiar para operação em 4 fases",
+      "group": "Loop 1",
+      "unit": "A",
+      "hint": "A",
+      "description": "Limiar para operação em 4 fases",
+      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "conversion": {
+        "type": "phase_sum",
+        "editable": true,
+        "amps": 2,
+        "series": [
+          "LOOP_1_PHASE1_THRESH",
+          "LOOP_1_PHASE2_DELTA",
+          "LOOP_1_PHASE3_DELTA",
+          "LOOP_1_PHASE4_DELTA",
+          "LOOP_1_PHASE5_DELTA",
+          "LOOP_1_PHASE6_DELTA",
+          "LOOP_1_PHASE7_DELTA"
+        ]
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_1_phase4_delta",
+      "address": 27,
+      "offset": 4,
+      "length": 4,
+      "symbol": "LOOP_1_PHASE4_DELTA",
+      "il": "IL_256B",
+      "label": "Limiar para operação em 5 fases",
+      "group": "Loop 1",
+      "unit": "A",
+      "hint": "A",
+      "description": "Limiar para operação em 5 fases",
+      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "conversion": {
+        "type": "phase_sum",
+        "editable": true,
+        "amps": 2,
+        "series": [
+          "LOOP_1_PHASE1_THRESH",
+          "LOOP_1_PHASE2_DELTA",
+          "LOOP_1_PHASE3_DELTA",
+          "LOOP_1_PHASE4_DELTA",
+          "LOOP_1_PHASE5_DELTA",
+          "LOOP_1_PHASE6_DELTA",
+          "LOOP_1_PHASE7_DELTA"
+        ]
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_1_phase5_delta",
+      "address": 28,
+      "offset": 0,
+      "length": 4,
+      "symbol": "LOOP_1_PHASE5_DELTA",
+      "il": "IL_257F",
+      "label": "Limiar para operação em 6 fases",
+      "group": "Loop 1",
+      "unit": "A",
+      "hint": "A",
+      "description": "Limiar para operação em 6 fases",
+      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "conversion": {
+        "type": "phase_sum",
+        "editable": true,
+        "amps": 2,
+        "series": [
+          "LOOP_1_PHASE1_THRESH",
+          "LOOP_1_PHASE2_DELTA",
+          "LOOP_1_PHASE3_DELTA",
+          "LOOP_1_PHASE4_DELTA",
+          "LOOP_1_PHASE5_DELTA",
+          "LOOP_1_PHASE6_DELTA",
+          "LOOP_1_PHASE7_DELTA"
+        ]
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_1_phase6_delta",
+      "address": 28,
+      "offset": 4,
+      "length": 4,
+      "symbol": "LOOP_1_PHASE6_DELTA",
+      "il": "IL_2593",
+      "label": "Limiar para operação em 7 fases",
+      "group": "Loop 1",
+      "unit": "A",
+      "hint": "A",
+      "description": "Limiar para operação em 7 fases",
+      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "conversion": {
+        "type": "phase_sum",
+        "editable": true,
+        "amps": 2,
+        "series": [
+          "LOOP_1_PHASE1_THRESH",
+          "LOOP_1_PHASE2_DELTA",
+          "LOOP_1_PHASE3_DELTA",
+          "LOOP_1_PHASE4_DELTA",
+          "LOOP_1_PHASE5_DELTA",
+          "LOOP_1_PHASE6_DELTA",
+          "LOOP_1_PHASE7_DELTA"
+        ]
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_1_phase7_delta",
+      "address": 29,
+      "offset": 0,
+      "length": 4,
+      "symbol": "LOOP_1_PHASE7_DELTA",
+      "il": "IL_25A7",
+      "label": "Limiar para operação em 8 fases",
+      "group": "Loop 1",
+      "unit": "A",
+      "hint": "A",
+      "description": "Limiar para operação em 8 fases",
+      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "conversion": {
+        "type": "phase_sum",
+        "editable": true,
+        "amps": 2,
+        "series": [
+          "LOOP_1_PHASE1_THRESH",
+          "LOOP_1_PHASE2_DELTA",
+          "LOOP_1_PHASE3_DELTA",
+          "LOOP_1_PHASE4_DELTA",
+          "LOOP_1_PHASE5_DELTA",
+          "LOOP_1_PHASE6_DELTA",
+          "LOOP_1_PHASE7_DELTA"
+        ]
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_2_phase1_thresh",
+      "address": 29,
+      "offset": 4,
+      "length": 4,
+      "symbol": "LOOP_2_PHASE1_THRESH",
+      "il": "IL_25BB",
+      "label": "Limiar para operação em 2 fases",
+      "group": "Loop 2",
+      "unit": "A",
+      "hint": "A",
+      "description": "Limiar para operação em 2 fases",
+      "source": "ComanchePowerSaving.tkbLoop1Phase1Thresh_Scroll",
+      "conversion": {
+        "type": "phase_sum",
+        "editable": true,
+        "amps": 2,
+        "series": [
+          "LOOP_2_PHASE1_THRESH"
+        ]
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_1_sw_period",
+      "address": 34,
+      "offset": 0,
+      "length": 8,
+      "symbol": "LOOP_1_SW_PERIOD",
+      "il": "IL_26E7",
+      "label": "Frequência de comutação",
+      "group": "Loop 1",
+      "unit": "kHz",
+      "hint": "kHz • 200 a 2000",
+      "description": "Frequência de comutação",
+      "source": "UtilityModule.SwitchingFrequencyComanche",
+      "conversion": {
+        "type": "frequency",
+        "editable": true,
+        "period_us": 20.83,
+        "min_khz": 200,
+        "max_khz": 2000
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_2_sw_period",
+      "address": 35,
+      "offset": 0,
+      "length": 8,
+      "symbol": "LOOP_2_SW_PERIOD",
+      "il": "IL_26FB",
+      "label": "Frequência de comutação",
+      "group": "Loop 2",
+      "unit": "kHz",
+      "hint": "kHz • 200 a 2000",
+      "description": "Frequência de comutação",
+      "source": "UtilityModule.SwitchingFrequencyComanche",
+      "conversion": {
+        "type": "frequency",
+        "editable": true,
+        "period_us": 20.83,
+        "min_khz": 200,
+        "max_khz": 2000
+      },
+      "widget": "text"
+    },
+    {
+      "name": "pwm_en_ats",
+      "address": 56,
+      "offset": 2,
+      "length": 1,
+      "symbol": "PWM_EN_ATS",
+      "il": "IL_2723",
+      "label": "Tipo de driver",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "Tri-state ou Tri-level ativo",
+      "description": "Tipo de driver",
+      "source": "ComanchePowerSaving.UpdateRegister",
+      "conversion": {
+        "editable": true,
+        "options": [
+          {
+            "code": 0,
+            "text": "Tri-state",
+            "aliases": [
+              "tri-state",
+              "tri state",
+              "tristate"
+            ]
+          },
+          {
+            "code": 1,
+            "text": "Tri-level ativo",
+            "aliases": [
+              "active tri level",
+              "tri level ativo"
+            ]
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "Tri-state"
+        },
+        {
+          "code": 1,
+          "text": "Tri-level ativo"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "sequence_mode",
+      "address": 20,
+      "offset": 0,
+      "length": 2,
+      "symbol": "SEQUENCE_MODE",
+      "il": "IL_28B4",
+      "label": "Sequência de partida",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "juntos, loop 2 depois do 1, ou loop 1 depois do 2",
+      "description": "0 os dois loops partem juntos. 1 o loop 2 segue o loop 1. 2 o loop 1 segue o loop 2. 3 é reservado.",
+      "source": "ComancheRegisterDesigner",
+      "vendor_text": "Sequencing the loop startups. 0 - Both loops start together. 1 - Loop 2 follows loop 1. 2 - Loop 1 follows loop 2. 3 - Reserved.",
+      "conversion": {
+        "editable": true,
+        "options": [
+          {
+            "code": 0,
+            "text": "Os dois loops partem juntos"
+          },
+          {
+            "code": 1,
+            "text": "Loop 2 depois do loop 1"
+          },
+          {
+            "code": 2,
+            "text": "Loop 1 depois do loop 2"
+          },
+          {
+            "code": 3,
+            "text": "Reservado"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "Os dois loops partem juntos"
+        },
+        {
+          "code": 1,
+          "text": "Loop 2 depois do loop 1"
+        },
+        {
+          "code": 2,
+          "text": "Loop 1 depois do loop 2"
+        },
+        {
+          "code": 3,
+          "text": "Reservado"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "application_mode",
+      "address": 97,
+      "offset": 1,
+      "length": 1,
+      "symbol": "APPLICATION_MODE",
+      "source": "UtilityModule.UpdateDeviceMode",
+      "label": "Modo de aplicação",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "Intel, MPOL, AMD ou GPU",
+      "description": "Modo de aplicação",
+      "conversion": {
+        "type": "mode_pair",
+        "editable": false,
+        "bits": [
+          {
+            "address": 20,
+            "offset": 2,
+            "length": 1
+          },
+          {
+            "address": 97,
+            "offset": 1,
+            "length": 1
+          }
+        ],
+        "map": {
+          "0,0": "Intel",
+          "0,1": "MPOL",
+          "1,0": "AMD",
+          "1,1": "GPU"
+        },
+        "missing": "Depende da personalidade e do modo de aplicação"
+      },
+      "choices": [
+        {
+          "text": "Intel"
+        },
+        {
+          "text": "MPOL"
+        },
+        {
+          "text": "AMD"
+        },
+        {
+          "text": "GPU"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "svi2_mode",
+      "address": 99,
+      "offset": 1,
+      "length": 1,
+      "symbol": "SVI2_MODE",
+      "source": "UtilityModule.UpdateVRMode",
+      "label": "Protocolo SVI",
+      "group": "Compartilhados",
+      "unit": "",
+      "hint": "SVI1 ou SVI2",
+      "description": "Protocolo SVI",
+      "conversion": {
+        "editable": false,
+        "options": [
+          {
+            "code": 0,
+            "text": "SVI1"
+          },
+          {
+            "code": 1,
+            "text": "SVI2"
+          }
+        ],
+        "type": "enum"
+      },
+      "choices": [
+        {
+          "code": 0,
+          "text": "SVI1"
+        },
+        {
+          "code": 1,
+          "text": "SVI2"
+        }
+      ],
+      "widget": "select"
+    },
+    {
+      "name": "loop_1_slow_iph_max",
+      "address": 77,
+      "offset": 3,
+      "length": 5,
+      "symbol": "LOOP_1_SLOW_IPH_MAX",
+      "source": "ComancheProtection.nudLoop1SlowOCP_ValueChanged",
+      "label": "Sobrecorrente lenta",
+      "group": "Loop 1",
+      "unit": "A",
+      "hint": "A",
+      "description": "Sobrecorrente lenta",
+      "conversion": {
+        "type": "phase_current",
+        "editable": true,
+        "loop": 1,
+        "amps_per_code": 2,
+        "max_code": 31,
+        "zero": "Desabilitado"
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_2_slow_iph_max",
+      "address": 78,
+      "offset": 3,
+      "length": 5,
+      "symbol": "LOOP_2_SLOW_IPH_MAX",
+      "source": "ComancheProtection.nudLoop1SlowOCP_ValueChanged",
+      "label": "Sobrecorrente lenta",
+      "group": "Loop 2",
+      "unit": "A",
+      "hint": "A",
+      "description": "Sobrecorrente lenta",
+      "conversion": {
+        "type": "phase_current",
+        "editable": true,
+        "loop": 2,
+        "amps_per_code": 2,
+        "max_code": 31,
+        "zero": "Desabilitado"
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_1_vboot",
+      "symbol": "LOOP_1_VBOOT",
+      "address": 23,
+      "offset": 0,
+      "length": 8,
+      "label": "Tensão de partida",
+      "group": "Loop 1",
+      "unit": "V",
+      "hint": "V • efeito na próxima partida",
+      "description": "Tensão de partida",
+      "source": "Comanche VBOOT",
+      "conversion": {
+        "type": "vboot",
+        "editable": true,
+        "step": 0.0125,
+        "low": 128,
+        "high": 251,
+        "anchor": 252,
+        "require": {
+          "address": 20,
+          "mask": 32
+        },
+        "below": "Definida pelos pinos de seleção"
+      },
+      "widget": "text"
+    },
+    {
+      "name": "loop_2_vboot",
+      "symbol": "LOOP_2_VBOOT",
+      "address": 24,
+      "offset": 0,
+      "length": 8,
+      "label": "Tensão de partida",
+      "group": "Loop 2",
+      "unit": "V",
+      "hint": "V • efeito na próxima partida",
+      "description": "Tensão de partida",
+      "source": "Comanche VBOOT",
+      "conversion": {
+        "type": "vboot",
+        "editable": true,
+        "step": 0.0125,
+        "low": 128,
+        "high": 251,
+        "anchor": 252,
+        "require": {
+          "address": 20,
+          "mask": 32
+        },
+        "below": "Definida pelos pinos de seleção"
+      },
+      "widget": "text"
+    }
+  ]
+}

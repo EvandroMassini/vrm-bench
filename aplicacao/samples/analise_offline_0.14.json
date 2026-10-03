@@ -1,0 +1,410 @@
+{
+  "kind": "offset_snapshot",
+  "timestamp_utc": "2026-10-02T02:06:37.562596+00:00",
+  "scope": "Somente registros ativos 14 e 26; não é backup completo nem MTP.",
+  "values": {
+    "14": {
+      "value": 34,
+      "raw_hex": "22",
+      "pec_verified": true,
+      "pec_received": "58",
+      "pec_expected": "58"
+    },
+    "26": {
+      "value": 255,
+      "raw_hex": "FF",
+      "pec_verified": true,
+      "pec_received": "45",
+      "pec_expected": "45"
+    }
+  },
+  "bus_observation": {
+    "samples": 10000,
+    "sda_low_samples": 0,
+    "scl_low_samples": 0,
+    "changes": 0,
+    "last_sda": true,
+    "last_scl": true,
+    "limitation": "Amostragem digital ~100 ms; não mede tensão nem garante ausência de outro mestre"
+  },
+  "mapping": {
+    "kind": "interface_mapping",
+    "timestamp_utc": "2026-10-02T02:06:37.667354+00:00",
+    "pmbus_address_7bit": 112,
+    "model_read": {
+      "command": "MFR_MODEL (0x9A)",
+      "raw_hex": "44",
+      "text": "D",
+      "pec_verified": true,
+      "identification": "Resposta de fabricante; modelo não confirmado"
+    },
+    "d6": {
+      "raw_hex": "88",
+      "value_raw": 136,
+      "pec_verified": true,
+      "pec_received": "D1",
+      "pec_expected": "D1"
+    },
+    "direct_i2c_enabled": true,
+    "direct_i2c_address_7bit": 8,
+    "limitation": "Interpretação D6 pela referência da família; não escreve endereço nem testa a interface direta"
+  },
+  "loops": [
+    {
+      "loop": 1,
+      "raw_hex": "F",
+      "signed_code": -1
+    },
+    {
+      "loop": 2,
+      "raw_hex": "F",
+      "signed_code": -1
+    }
+  ],
+  "backup_path": "E:\\Infineon\\release-0.14\\desktop\\InfineonBench\\captures\\backups\\backup_offsets_20261002T020637_667354Z.json",
+  "rows": [
+    {
+      "register": "0D",
+      "loop": "Comum / não atribuído",
+      "field": "PRODUCT_ID_OTP",
+      "bits": "7:0",
+      "value": null,
+      "reference": null,
+      "comparison": "Sem referência"
+    },
+    {
+      "register": "38",
+      "loop": "Comum / não atribuído",
+      "field": "AMD_CMD_MODE",
+      "bits": "3:3",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "14",
+      "loop": "Comum / não atribuído",
+      "field": "DEVICE_PERSONALITIES",
+      "bits": "5:5",
+      "value": 1,
+      "reference": 1,
+      "comparison": "Confere"
+    },
+    {
+      "register": "14",
+      "loop": "Comum / não atribuído",
+      "field": "LOOPS_CONFIGURATION",
+      "bits": "4:0",
+      "value": 2,
+      "reference": 2,
+      "comparison": "Confere"
+    },
+    {
+      "register": "8D",
+      "loop": "Comum / não atribuído",
+      "field": "INTEL_OFFSET_1",
+      "bits": "7:0",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "8E",
+      "loop": "Comum / não atribuído",
+      "field": "INTEL_OFFSET_2",
+      "bits": "7:0",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "31",
+      "loop": "Comum / não atribuído",
+      "field": "REDUCE_DVID_SPEED_BY_10X",
+      "bits": "7:7",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "32",
+      "loop": "Comum / não atribuído",
+      "field": "OCP_MODE",
+      "bits": "1:0",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "33",
+      "loop": "1",
+      "field": "LOOP_1_OCP_THR",
+      "bits": "4:0",
+      "value": null,
+      "reference": 31,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "34",
+      "loop": "2",
+      "field": "LOOP_2_OCP_THR",
+      "bits": "4:0",
+      "value": null,
+      "reference": 25,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "31",
+      "loop": "Comum / não atribuído",
+      "field": "OTP_THRESH",
+      "bits": "4:0",
+      "value": null,
+      "reference": 7,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "32",
+      "loop": "Comum / não atribuído",
+      "field": "TEMP_MAX",
+      "bits": "7:2",
+      "value": null,
+      "reference": 46,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "33",
+      "loop": "Comum / não atribuído",
+      "field": "OVP_THRESH",
+      "bits": "7:5",
+      "value": null,
+      "reference": 3,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "34",
+      "loop": "Comum / não atribuído",
+      "field": "UVP_THRESH",
+      "bits": "7:5",
+      "value": null,
+      "reference": 3,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "38",
+      "loop": "Comum / não atribuído",
+      "field": "ADC_UVP",
+      "bits": "2:2",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "38",
+      "loop": "Comum / não atribuído",
+      "field": "AUTO_ALERT",
+      "bits": "4:4",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "24",
+      "loop": "1",
+      "field": "LOOP_1_LL_REG",
+      "bits": "7:0",
+      "value": null,
+      "reference": 12,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "25",
+      "loop": "2",
+      "field": "LOOP_2_LL_REG",
+      "bits": "7:0",
+      "value": null,
+      "reference": 30,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "38",
+      "loop": "1",
+      "field": "LOOP_1_LL_EN",
+      "bits": "7:7",
+      "value": null,
+      "reference": 1,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "38",
+      "loop": "2",
+      "field": "LOOP_2_LL_EN",
+      "bits": "6:6",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "3D",
+      "loop": "1",
+      "field": "LOOP_1_VMAX",
+      "bits": "7:4",
+      "value": null,
+      "reference": 10,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "3D",
+      "loop": "2",
+      "field": "LOOP_2_VMAX",
+      "bits": "3:0",
+      "value": null,
+      "reference": 10,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "26",
+      "loop": "1",
+      "field": "LOOP_1_VID_OFFSET",
+      "bits": "7:4",
+      "value": 15,
+      "reference": 15,
+      "comparison": "Confere"
+    },
+    {
+      "register": "26",
+      "loop": "2",
+      "field": "LOOP_2_VID_OFFSET",
+      "bits": "3:0",
+      "value": 15,
+      "reference": 15,
+      "comparison": "Confere"
+    },
+    {
+      "register": "31",
+      "loop": "Comum / não atribuído",
+      "field": "VR_HOT_MODE",
+      "bits": "6:5",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "38",
+      "loop": "Comum / não atribuído",
+      "field": "PAD_OUTPUT_MODE",
+      "bits": "1:0",
+      "value": null,
+      "reference": 1,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "1A",
+      "loop": "1",
+      "field": "LOOP_1_PHASE1_THRESH",
+      "bits": "7:4",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "1A",
+      "loop": "1",
+      "field": "LOOP_1_PHASE2_DELTA",
+      "bits": "3:0",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "1B",
+      "loop": "1",
+      "field": "LOOP_1_PHASE3_DELTA",
+      "bits": "7:4",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "1B",
+      "loop": "1",
+      "field": "LOOP_1_PHASE4_DELTA",
+      "bits": "3:0",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "1C",
+      "loop": "1",
+      "field": "LOOP_1_PHASE5_DELTA",
+      "bits": "7:4",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "1C",
+      "loop": "1",
+      "field": "LOOP_1_PHASE6_DELTA",
+      "bits": "3:0",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "1D",
+      "loop": "1",
+      "field": "LOOP_1_PHASE7_DELTA",
+      "bits": "7:4",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "1D",
+      "loop": "2",
+      "field": "LOOP_2_PHASE1_THRESH",
+      "bits": "3:0",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "22",
+      "loop": "1",
+      "field": "LOOP_1_SW_PERIOD",
+      "bits": "7:0",
+      "value": null,
+      "reference": 96,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "23",
+      "loop": "2",
+      "field": "LOOP_2_SW_PERIOD",
+      "bits": "7:0",
+      "value": null,
+      "reference": 137,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "38",
+      "loop": "Comum / não atribuído",
+      "field": "PWM_EN_ATS",
+      "bits": "5:5",
+      "value": null,
+      "reference": 0,
+      "comparison": "Não lido"
+    },
+    {
+      "register": "14",
+      "loop": "Comum / não atribuído",
+      "field": "SEQUENCE_MODE",
+      "bits": "7:6",
+      "value": 0,
+      "reference": 0,
+      "comparison": "Confere"
+    }
+  ],
+  "comparison_reference": "ASUS_STRIX_RX580_IR3567B_6PH.txt; outra placa, apenas comparação"
+}

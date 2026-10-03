@@ -1,0 +1,17 @@
+VRM Bench 0.48 — experimento de bancada
+
+Isto é um experimento. Não é um produto e não é uma ferramenta oficial da Infineon.
+
+O autor deste projeto não se responsabiliza por qualquer dano que o uso possa causar, inclusive regulador, placa de vídeo, fonte, Pico e a memória do CI.
+
+Faça os testes em sucata. Não use numa placa que precise continuar funcionando.
+
+Como usar este pacote
+1. Extraia o zip inteiro. Não execute o programa de dentro do arquivo compactado.
+2. Mantenha na mesma pasta o VRMBench.exe, a pasta _internal e a pasta controllers.
+3. Grave no Pico o arquivo infineon-pico-v0.26.uf2 (protocolo 15), com o botão BOOTSEL, antes de ligar a sucata.
+4. GP4 é SDA, GP5 é SCL, GND é comum. Pull-up em 3,3 V. Não ligue 5 V no Pico e não alimente a placa pelo Pico.
+5. No programa, conecte o Pico, escolha o CI certo, marque o barramento conferido e só então leia. Se a leitura não bater com o JSON, ela para.
+6. Gravar em RAM já altera a placa energizada. Gravar permanente gasta um slot e pode impedir a placa de ligar. Meça a saída com um multímetro.
+
+O texto completo está no README do repositório.

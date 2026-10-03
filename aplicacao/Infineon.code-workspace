@@ -1,0 +1,15 @@
+{
+  "folders": [
+    {
+      "name": "Firmware Pico",
+      "path": "firmware"
+    },
+    {
+      "name": "Aplicativo",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "E:/Infineon/.venv-build/Scripts/python.exe"
+  }
+}
